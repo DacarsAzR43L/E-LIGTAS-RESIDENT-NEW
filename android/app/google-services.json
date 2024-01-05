@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "125129385603",
+    "project_id": "e-ligtas-ccaed",
+    "storage_bucket": "e-ligtas-ccaed.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:125129385603:android:eb91cf939e9a2109fd1db6",
+        "android_client_info": {
+          "package_name": "com.example.eligtas_resident"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARk23xV-tFrTr3R-yByRjFZMA8bNbgS70"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
