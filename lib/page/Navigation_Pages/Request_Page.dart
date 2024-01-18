@@ -43,6 +43,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
 
   //Personal Info
   String name = "Not Available";
+  String residentProfile = "";
   int phoneNumber = 0;
   String finalNumber = "Not Available";
 
@@ -54,6 +55,8 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
   String locationLink ="";
   double latitude = 0;
   double longitude = 0;
+
+  String statusReport = '0';
 
 
   bool _loading = false;
@@ -168,7 +171,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
       if (placemarks != null && placemarks.isNotEmpty) {
         Placemark place = placemarks[0];
         setState(() {
-          _currentAddress = "${place.street}, ${place.locality}";
+          _currentAddress = "${place.street}, ${place.administrativeArea}, ${place.locality}";
         });
       } else {
         setState(() {
@@ -329,8 +332,10 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
         'locationLink': locationLink,
         'phoneNumber': finalNumber,
         'message': Description,
-        'image': await MultipartFile.fromFile(_imageFile!.path, filename: 'image.jpg'),
+        'imageEvidence': await MultipartFile.fromFile(_imageFile!.path, filename: 'image.jpg'),
+        'residentProfile': residentProfile,
         'dateTime': DateTime.now().toLocal().toString(),
+        'status': statusReport,
       });
 
       Dio dio = Dio();
@@ -339,10 +344,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
         data: formData,
       );
 
-      print('Dio Request:');
-      print(response.requestOptions);
-      print('Dio Response:');
-      print(response.data);
+
 
       if (response.statusCode == 200) {
         var responseBody = jsonEncode(response.data);
@@ -353,12 +355,16 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
         if (res['success'] == true) {
           Navigator.of(context).pop();
 
-          showDialog(
+          AwesomeDialog(
             context: context,
-            builder: (context) {
-              return RequestSuccessDialog();
-            },
-          );
+            dialogType: DialogType.success,
+            animType: AnimType.rightSlide,
+            btnOkColor: Color.fromRGBO(51, 71, 246, 1),
+            title: 'Success',
+            desc: 'Report Sent Successfully! ',
+            btnOkOnPress: () {},
+            dismissOnTouchOutside: false,
+          )..show();
           print('Image uploaded successfully!');
 
           setState(() {
@@ -388,13 +394,12 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
           );
         },
       );
-    } finally {
-      Navigator.of(context).pop(); // Close the loading dialog
     }
   }
 
 
-  Widget _buildButton(int buttonIndex, String label, IconData icon, Color color) {
+  Widget _buildButton(int buttonIndex, String label, IconData icon, Color color)
+  {
     return Expanded(
       child: GestureDetector(
         onTap: () {
@@ -499,8 +504,8 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    double containerWidth = MediaQuery.of(context).size.width * 0.48;
-    double containerHeight = MediaQuery.of(context).size.height * 1.0;
+    double containerWidth = MediaQuery.of(context).size.width*1.5 ;
+    double containerHeight = MediaQuery.of(context).size.height*1.03;
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: RefreshIndicator(
@@ -508,15 +513,15 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
         child: SingleChildScrollView(
           child: SafeArea(
             child: Container(
-              width: 100.w,    //It will take a 20% of screen width
+              width: containerWidth,    //It will take a 20% of screen width
               height:containerHeight,  //It will take a 30% of screen height
               margin: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 0),
-             // decoration: BoxDecoration(
-             // color: Colors.white,
+              //decoration: BoxDecoration(
+              //color: Colors.white,
               // border: Border.all(
-              //color: Colors.red,
-               //width: 5,
-               //)),
+             // color: Colors.red,
+             //  width: 5,
+             // )),
               child: Column(
                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -593,13 +598,13 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                       ),
 
                     Container(
-                      width: containerWidth,
-                      //decoration: BoxDecoration(
-                     //  color: Colors.white,
-                    //  border: Border.all(
+                      width: containerWidth*0.32,
+                    // decoration: BoxDecoration(
+                      // color: Colors.white,
+                     //border: Border.all(
                      //color: Colors.red,
-                     // width: 5,
-                     // )),
+                    //  width: 5,
+                    // )),
                       child:   _currentPosition != null
                           ?  Text(_currentAddress,
                         maxLines: 1,
@@ -863,12 +868,14 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                         height: 50.0 ,
                         child: TextButton(onPressed: (){
 
-                          if (_formField.currentState!.validate() && _selectedButton <4 && _imageFile !=null &&  _currentPosition != null) {
+                          if (_formField.currentState!.validate() && _selectedButton <4 && _imageFile !=null &&  _currentPosition != null
+                          && userInfo['name'] !=null) {
 
 
                             Description = descriptionController.text;
 
                             name = userInfo['name'];
+                            residentProfile = userInfo['image'];
                             phoneNumber = int.parse(userInfo['phoneNumber']);
                             finalNumber =phoneNumber.toString();
 

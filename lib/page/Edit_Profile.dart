@@ -603,7 +603,7 @@ class _Edit_ProfileScreenState extends State<Edit_ProfileScreen> {
                         },
                       ),
                       SizedBox(height:10.0),
-                      Text('Address:',
+                      Text('Full Address: ',
                         style: TextStyle(
                           fontFamily: 'Montserrat-Regular',
                           fontSize: 15.0,
@@ -616,7 +616,7 @@ class _Edit_ProfileScreenState extends State<Edit_ProfileScreen> {
                         controller: _addressController,
                         decoration: InputDecoration(
                           prefixIcon: new Icon(Icons.location_on_outlined, color: Colors.black,),
-                          hintText: 'Address',
+                          hintText: 'House/Lot/Street/Municipality/Region',
                           contentPadding: EdgeInsets.all(5.0),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),

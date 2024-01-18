@@ -405,7 +405,7 @@ late PermissionStatus statusCamera;
 
                           SizedBox(height:10.0),
 
-                          Text('Address:',
+                          Text('Full Address: ',
                             style: TextStyle(
                               fontFamily: 'Montserrat-Regular',
                               fontSize: 15.0,
@@ -420,7 +420,7 @@ late PermissionStatus statusCamera;
                             controller: _addressController,
                             decoration: InputDecoration(
                               prefixIcon: new Icon(Icons.location_on_outlined,color: Colors.black,),
-                              hintText: 'Address',
+                              hintText: 'House/Lot/Street/Municipality/Region:',
                               contentPadding: EdgeInsets.all(5.0),
                               border: OutlineInputBorder(borderRadius:BorderRadius.circular(10.0),
                                   borderSide: BorderSide(color: Color.fromRGBO(122, 122, 122, 1), width: 1.0),),

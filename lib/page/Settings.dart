@@ -1,17 +1,17 @@
 
 
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:eligtas_resident/page/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../CustomDialog/LoginSuccessDialog.dart';
 import 'Home.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
 
-  //Firebase Auth
-  final auth = FirebaseAuth.instance;
-  User? user;
   String? uid = FirebaseAuth.instance.currentUser?.uid;
 
 
@@ -19,15 +19,57 @@ class SettingsPage extends StatelessWidget {
 
   SettingsPage({required this.uid});
 
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  //Firebase Auth
+  final auth = FirebaseAuth.instance;
+
+  User? user;
 
   Future<void> signOutUser() async {
-    try {
-      await FirebaseAuth.instance.signOut();
 
+
+    // Check for internet connectivity
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      print('No internet connection');
+
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.warning,
+        animType: AnimType.rightSlide,
+        btnOkColor: Color.fromRGBO(51, 71, 246, 1),
+        title: "No Internet Connection",
+        desc: 'Please Try Again',
+        btnCancelOnPress: () {},
+        btnOkOnPress: () {},
+        dismissOnTouchOutside: false,
+      )..show();
+      return;
+    }
+
+    try {
+
+      await FirebaseAuth.instance.signOut();
+      await storeSignOutInfo();
+      Navigator.pushAndRemoveUntil(context,
+          MaterialPageRoute(builder: (context) => LoginPage()), (
+              route) => false);
     } catch (e) {
       print('Error signing out: $e');
       // Handle sign-out errors, if any.
     }
+  }
+
+  storeSignOutInfo() async {
+    print("Shared pref called");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.setBool('isLoggedin', false);
+    print(prefs.getBool('isLoggedin'));
   }
 
   @override
@@ -90,13 +132,11 @@ class SettingsPage extends StatelessWidget {
                   animType: AnimType.rightSlide,
                   btnOkColor: Color.fromRGBO(51, 71, 246, 1),
                   title: "Confirm Sign Out",
-                  desc: 'Are you sure you want to sign up?',
+                  desc: 'Are you sure you want to sign out?',
                   btnCancelOnPress: () {},
                   btnOkOnPress: () {
                     signOutUser();
-                    Navigator.pushAndRemoveUntil(context,
-                        MaterialPageRoute(builder: (context) => LoginPage()), (
-                            route) => false);
+
                   },
                   dismissOnTouchOutside: false,
                 )..show();

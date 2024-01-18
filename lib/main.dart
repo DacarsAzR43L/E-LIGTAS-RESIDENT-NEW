@@ -13,6 +13,7 @@ import 'firebase_options.dart';
 
 
 int? isviewed;
+bool? isLoggedIn;
 String? uid = FirebaseAuth.instance.currentUser?.uid;
 
 
@@ -27,6 +28,8 @@ void main() async {
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top], );
   SharedPreferences prefs = await SharedPreferences.getInstance();
   isviewed = prefs.getInt('onBoard');
+  isLoggedIn = prefs.getBool('isLoggedin');
+
   print(isviewed);
   runApp(MyApp());
 }
@@ -50,6 +53,8 @@ Future<bool?> checkUserVerification() async {
 class MyApp extends StatelessWidget {
   String? uid = FirebaseAuth.instance.currentUser?.uid;
 
+
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -59,17 +64,16 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             title: 'Title',
             theme: ThemeData(primarySwatch: Colors.blue),
-            home:HomeScreen(uid: uid,),/*isviewed != 0 ? OnBoardingPage() : FutureBuilder
-            (future: checkUserVerification(), builder: (context, snapshot){
+              home: isviewed != 0 ? OnBoardingPage() : isLoggedIn ==true ? HomeScreen(uid: uid) : FutureBuilder(
+                  future: checkUserVerification(), builder: (context, snapshot){
 
-       if (snapshot.hasError || snapshot.data == false) {
-        // User is not logged in or email is not verified.
-        return LoginPage();
-        } else {
-        // User is logged in and email is verified.
-        return HomeScreen(uid: uid,);
-     }
-          })*/
+    if (snapshot.hasError || snapshot.data == false) {
+    // User is not logged in or email is not verified.
+    return LoginPage();
+    } else {
+    // User is logged in and email is verified.
+    return HomeScreen(uid: uid,);
+    }})
           );
         }
     );

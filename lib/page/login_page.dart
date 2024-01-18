@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:eligtas_resident/page/onboarding_page.dart';
 import 'package:eligtas_resident/page/sign_up.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 import 'package:eligtas_resident/CustomDialog/LoginSuccessDialog.dart';
 
@@ -29,6 +30,14 @@ class _LoginPageState extends State<LoginPage> {
   User? user;
   String? uid = FirebaseAuth.instance.currentUser?.uid;
 
+
+  _storeLoginInfo() async {
+    print("Shared pref called");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.setBool('isLoggedin', true);
+    print(prefs.getBool('isLoggedin'));
+  }
 
   Future<void> loginUser(String email, String password) async {
 
@@ -56,6 +65,7 @@ class _LoginPageState extends State<LoginPage> {
       User? user = userCredential.user;
       print("User logged in: ${user?.uid}");
 
+    await  _storeLoginInfo();
 
       // Navigate to the next screen or perform any other desired action.
       Navigator.pushAndRemoveUntil(context,
@@ -138,6 +148,7 @@ class _LoginPageState extends State<LoginPage> {
                 // )),
 
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Center(
