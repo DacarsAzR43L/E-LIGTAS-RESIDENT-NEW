@@ -6,6 +6,7 @@ import 'package:eligtas_resident/page/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sizer/sizer.dart';
 
 import '../CustomDialog/LoginSuccessDialog.dart';
 import 'Home.dart';
@@ -121,7 +122,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           Container(
-            width: double.infinity, // Adjust the width as needed
+            width: 90.w, // Adjust the width as needed
             margin: EdgeInsets.fromLTRB(10, 8, 10, 16), // Adjust margin as needed
             child:TextButton(
               onPressed: () {
@@ -144,7 +145,7 @@ class _SettingsPageState extends State<SettingsPage> {
               child: Text('Sign Out',
                 style: TextStyle(
                   fontFamily: 'Montserrat-Regular',
-                  fontSize:24.0,
+                  fontSize:15.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),),

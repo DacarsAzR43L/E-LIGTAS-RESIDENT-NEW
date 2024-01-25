@@ -262,249 +262,262 @@ late PermissionStatus statusCamera;
   }
 
   @override
-  Widget build(BuildContext context)  =>
-    Scaffold(
-      resizeToAvoidBottomInset: true,
-
-      appBar: AppBar(
-        elevation: 5,
-        backgroundColor: Colors.white, // Set the background color to white
-        title: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            'Set up Profile',
-            style: TextStyle(
-              color: Colors.black,
-              fontFamily: "Montserrat-Regular",
-              fontWeight: FontWeight.bold,// Set the text color
-            ),
+  Widget build(BuildContext context) => Scaffold(
+    resizeToAvoidBottomInset: true,
+    appBar: AppBar(
+      elevation: 5,
+      backgroundColor: Colors.white,
+      title: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          'Set up Profile',
+          style: TextStyle(
+            color: Colors.black,
+            fontFamily: "Montserrat-Regular",
+            fontWeight: FontWeight.bold,
+            // Set the text color
           ),
         ),
       ),
-      body: WillPopScope(
-        onWillPop: () async {
-          return false;
-        },
-        child: SingleChildScrollView(
-          child: SafeArea(
-            child: Container(
-              margin: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
-              width: 100.w,    //It will take a 20% of screen width
-              height:85.h, //It will take a 30% of screen height
-              /*decoration: BoxDecoration(
-               color: Colors.white,
-               border: Border.all(
-              color: Colors.red,
-               width: 5,
-               )),*/
-
-
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 80,
-                    backgroundColor: Colors.grey,
-                    child: _imageFile == null
-                        ? Icon(Icons.person, size: 80, color: Colors.white)
-                        : ClipOval(
-                      child: Image.file(
-                        _imageFile!,
-                        width: 170,
-                        height: 170,
-                        fit: BoxFit.cover,
-                      ),
+    ),
+    body: WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: SingleChildScrollView(
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(1.h,5.h,1.h,2.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 15.0.w, // Adjusted radius using sizer
+                  backgroundColor: Colors.grey,
+                  child: _imageFile == null
+                      ? Icon(Icons.person, size: 15.0.w, color: Colors.white)
+                      : ClipOval(
+                    child: Image.file(
+                      _imageFile!,
+                      width: 40.0.w, // Adjusted width using sizer
+                      height: 40.0.w, // Adjusted height using sizer
+                      fit: BoxFit.cover,
                     ),
                   ),
+                ),
+                SizedBox(height: 2.0.h), // Adjusted height using sizer
 
-                  SizedBox(height: 20.0,),
+                ElevatedButton(
+                  onPressed: () async {
+                    status = await Permission.photos.request();
+                    statusCamera = await Permission.camera.request();
 
-                  ElevatedButton(
-                    onPressed: () async {
-
-                      status =  await Permission.photos.request();
-                       statusCamera =  await Permission.camera.request();
-
-                      if (status.isGranted || statusCamera.isGranted) {
-                        await _showImageSourceDialog(context);
-                      } else {
-                        AwesomeDialog(
-                          context: context,
-                          dialogType: DialogType.warning,
-                          animType: AnimType.rightSlide,
-                          btnOkColor: Color.fromRGBO(51, 71, 246, 1),
-                          title: 'Error',
-                          desc: 'Please Allow Access to the Media or Camera ',
-                          btnOkOnPress: () {},
-                          dismissOnTouchOutside: false,
-                        )..show();
-                      }
-
-                    },
-                    child: Text("Upload Image",
+                    if (status.isGranted || statusCamera.isGranted) {
+                      await _showImageSourceDialog(context);
+                    } else {
+                      AwesomeDialog(
+                        context: context,
+                        dialogType: DialogType.warning,
+                        animType: AnimType.rightSlide,
+                        btnOkColor: Color.fromRGBO(51, 71, 246, 1),
+                        title: 'Error',
+                        desc: 'Please Allow Access to the Media or Camera ',
+                        btnOkOnPress: () {},
+                        dismissOnTouchOutside: false,
+                      )..show();
+                    }
+                  },
+                  child: Text(
+                    "Upload Image",
                     style: TextStyle(
                       color: Colors.white,
                       fontFamily: "Montserrat-Regular",
-                    ),),
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll<Color>(Color.fromRGBO(51, 71, 246, 1)),
-
+                      fontSize: 12.0.sp, // Adjusted font size using sizer
                     ),
                   ),
-                  SizedBox(height: 9.0,),
-
-                  Container(
-                    width: 100.w,
-                    height: 41.8.h,
-
-                   /* decoration: BoxDecoration(
-                     color: Colors.white,
-                     border: Border.all(
-                    color: Colors.red,
-                     width: 5,
-                     )),*/
-
-                    child: Form(
-                      key:_formField,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text('Full Name:',
-                            style: TextStyle(
-                              fontFamily: 'Montserrat-Regular',
-                              fontSize: 15.0,
-                              fontWeight: FontWeight.bold,
-                            ),),
-
-                          SizedBox(height: 10.0,),
-
-                          TextFormField(
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
-                            keyboardType: TextInputType.name,
-                            controller: _nameController,
-                            decoration: InputDecoration(
-                              contentPadding: EdgeInsets.all(5.0),
-                              prefixIcon: new Icon(Icons.account_circle_outlined,color: Colors.black,),
-                              hintText: 'Full Name',
-                              border: OutlineInputBorder(borderRadius:BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Color.fromRGBO(122, 122, 122, 1), width: 1.0)),
-                              focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Color.fromRGBO(51, 71, 246, 1),
-                                  )
-                              ),
-                            ),
-                            validator: (value) {
-                              if(value!.isEmpty) {
-                                return "Enter Name";
-                              }
-                              return null;
-                            },
-                          ),
-
-                          SizedBox(height:10.0),
-
-                          Text('Full Address: ',
-                            style: TextStyle(
-                              fontFamily: 'Montserrat-Regular',
-                              fontSize: 15.0,
-                              fontWeight: FontWeight.bold,
-                            ),),
-
-                          SizedBox(height: 10.0,),
-
-                          TextFormField(
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
-                            keyboardType: TextInputType.streetAddress,
-                            controller: _addressController,
-                            decoration: InputDecoration(
-                              prefixIcon: new Icon(Icons.location_on_outlined,color: Colors.black,),
-                              hintText: 'House/Lot/Street/Municipality/Region:',
-                              contentPadding: EdgeInsets.all(5.0),
-                              border: OutlineInputBorder(borderRadius:BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(color: Color.fromRGBO(122, 122, 122, 1), width: 1.0),),
-                              focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Color.fromRGBO(51, 71, 246, 1),
-                                  )
-                              ),
-                            ),
-                            validator: (value) {
-                              if(value!.isEmpty) {
-                                return "Enter Address";
-                              }
-                              return null;
-                            },
-                          ),
-
-                      SizedBox(height: 10.0,),
-
-                          Text('Phone Number:',
-                            style: TextStyle(
-                              fontFamily: 'Montserrat-Regular',
-                              fontSize: 15.0,
-                              fontWeight: FontWeight.bold,
-                            ),),
-
-                          SizedBox(height: 10.0,),
-
-                          TextFormField(
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
-                            keyboardType: TextInputType.number,
-                            controller: _phoneController,
-                            maxLength: 10,
-                            maxLengthEnforcement:null ,
-                            decoration: InputDecoration(
-                              prefixIcon: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 13.0,vertical: 18.0), // Adjust the spacing as needed
-                                child: Text(setcountryCode,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 13.0),), // Set the country code as a prefix
-                              ),
-                              hintText: 'e.g +639993161582',
-                              contentPadding: EdgeInsets.all(5.0),
-                              border: OutlineInputBorder(borderRadius:BorderRadius.circular(10.0),
-                                borderSide: BorderSide(color: Color.fromRGBO(122, 122, 122, 1), width: 1.0),),
-                              focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Color.fromRGBO(51, 71, 246, 1),
-                                  )
-                              ),
-                            ),
-                            validator: (value) {
-                              if(value!.isEmpty) {
-                                return "Enter Phone Number";
-                              }
-                              return null;
-                            },
-                          ),
-
-                        ],
-                      ),
-                    ),
+                  style: ButtonStyle(
+                    backgroundColor:
+                    MaterialStatePropertyAll<Color>(Color.fromRGBO(51, 71, 246, 1)),
                   ),
-                  Container(
+                ),
+                SizedBox(height: 1.0.h), // Adjusted height using sizer
+
+                Padding(
+                  padding: EdgeInsets.fromLTRB(1.h,1.h,1.h,0.w),
+                  child: Form(
+                    key: _formField,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        SizedBox(
-                          width: 400.0,
-                          height: 50.0 ,
-                          child: TextButton(onPressed: (){
+                        Text(
+                          'Full Name:',
+                          style: TextStyle(
+                            fontFamily: 'Montserrat-Regular',
+                            fontSize: 12.sp, // Adjusted font size using sizer
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 1.0.h), // Adjusted height using sizer
 
+                        TextFormField(
+                          autovalidateMode:
+                          AutovalidateMode.onUserInteraction,
+                          keyboardType: TextInputType.name,
+                          controller: _nameController,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.all(1.0.h), // Adjusted padding using sizer
+                            prefixIcon: new Icon(
+                              Icons.account_circle_outlined,
+                              color: Colors.black,
+                            ),
+                            hintText: 'Full Name',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(1.0.h), // Adjusted radius using sizer
+                              borderSide: BorderSide(
+                                color: Color.fromRGBO(122, 122, 122, 1),
+                                width: 1.0.w, // Adjusted width using sizer
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Color.fromRGBO(51, 71, 246, 1),
+                              ),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "Enter Name";
+                            }
+                            return null;
+                          },
+                        ),
+                        SizedBox(height: 2.0.h), // Adjusted height using sizer
+
+                        Text(
+                          'Full Address: ',
+                          style: TextStyle(
+                            fontFamily: 'Montserrat-Regular',
+                            fontSize: 12.sp, // Adjusted font size using sizer
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 1.0.h), // Adjusted height using sizer
+
+                        TextFormField(
+                          autovalidateMode:
+                          AutovalidateMode.onUserInteraction,
+                          keyboardType: TextInputType.streetAddress,
+                          controller: _addressController,
+                          decoration: InputDecoration(
+                            prefixIcon: new Icon(
+                              Icons.location_on_outlined,
+                              color: Colors.black,
+                            ),
+                            hintText:
+                            'House/Lot/Street/Municipality/Region:',
+                            contentPadding: EdgeInsets.all(1.0.h), // Adjusted padding using sizer
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(1.0.h), // Adjusted radius using sizer
+                              borderSide: BorderSide(
+                                color: Color.fromRGBO(122, 122, 122, 1),
+                                width: 1.0.w, // Adjusted width using sizer
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Color.fromRGBO(51, 71, 246, 1),
+                              ),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "Enter Address";
+                            }
+                            return null;
+                          },
+                        ),
+
+                        SizedBox(height: 2.0.h), // Adjusted height using sizer
+
+                        Text(
+                          'Phone Number:',
+                          style: TextStyle(
+                            fontFamily: 'Montserrat-Regular',
+                            fontSize: 12.sp, // Adjusted font size using sizer
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 1.0.h), // Adjusted height using sizer
+
+                        TextFormField(
+                          autovalidateMode:
+                          AutovalidateMode.onUserInteraction,
+                          keyboardType: TextInputType.number,
+                          controller: _phoneController,
+                          maxLength: 10,
+                          maxLengthEnforcement: null,
+                          decoration: InputDecoration(
+                            prefixIcon: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 1.3.h, vertical: 1.8.h), // Adjusted padding using sizer
+                              child: Text(
+                                setcountryCode,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12.sp, // Adjusted font size using sizer
+                                ),
+                              ),
+                            ),
+                            hintText: 'e.g +639993161582',
+                            contentPadding: EdgeInsets.all(1.0.h), // Adjusted padding using sizer
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(1.0.h), // Adjusted radius using sizer
+                              borderSide: BorderSide(
+                                color: Color.fromRGBO(122, 122, 122, 1),
+                                width: 1.0.w, // Adjusted width using sizer
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Color.fromRGBO(51, 71, 246, 1),
+                              ),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "Enter Phone Number";
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 2.0.h),
+                Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 90.0.w, // Adjusted width using sizer
+                        height: 7.0.h, // Adjusted height using sizer
+                        child: TextButton(
+                          onPressed: () {
                             String _userInput = _phoneController.text;
 
-                            if(_formField.currentState!.validate() && _imageFile != null){
-
-
-                              String mergePhoneNumber = '$countryCode$_userInput';
+                            if (_formField.currentState!.validate() &&
+                                _imageFile != null) {
+                              String mergePhoneNumber =
+                                  '$countryCode$_userInput';
                               finalNumber = mergePhoneNumber;
-                              print('Merged Phone Number: $mergePhoneNumber');
+                              print(
+                                  'Merged Phone Number: $mergePhoneNumber');
 
                               checkPhoneNumber(mergePhoneNumber);
-                            }
-
-                            else if(_formField.currentState!.validate() && _imageFile == null){
-
+                            } else if (_formField.currentState!.validate() &&
+                                _imageFile == null) {
                               _nameController.clear();
                               _phoneController.clear();
                               _addressController.clear();
@@ -518,10 +531,7 @@ late PermissionStatus statusCamera;
                                 desc: 'Please Input a Photo',
                                 btnOkOnPress: () {},
                               )..show();
-
-                            }
-
-                            else {
+                            } else {
                               AwesomeDialog(
                                 context: context,
                                 dialogType: DialogType.warning,
@@ -534,36 +544,39 @@ late PermissionStatus statusCamera;
 
                               print(uid);
                             }
-
-
-
                           },
-                              child: Text('Continue',
-                                style: TextStyle(
-                                  fontFamily: 'Montserrat-Regular',
-                                  fontSize:24.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),),
-                              style: ButtonStyle(
-                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    side: BorderSide(color: Color.fromRGBO(51, 71, 246, 1)),
-                                  ),),
-                                backgroundColor: MaterialStatePropertyAll<Color>(Color.fromRGBO(51, 71, 246, 1)),
-                              )),
+                          child: Text(
+                            'Continue',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat-Regular',
+                              fontSize: 17.sp, // Adjusted font size using sizer
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(1.0.h), // Adjusted radius using sizer
+                                side: BorderSide(
+                                    color: Color.fromRGBO(51, 71, 246, 1)),
+                              ),
+                            ),
+                            backgroundColor: MaterialStatePropertyAll<Color>(
+                                Color.fromRGBO(51, 71, 246, 1)),
+                          ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-
-                ],
-              ),
-
+                ),
+              ],
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+
+}

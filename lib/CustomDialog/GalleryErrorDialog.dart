@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
 
 class GalleryErrorDialog extends StatelessWidget {
   @override
@@ -31,6 +32,7 @@ class GalleryErrorDialog extends StatelessWidget {
             SizedBox(height: 13),
             Text(
               'Please allow the app to access media',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13.0,
                 fontFamily: "Montserrat-Regular",

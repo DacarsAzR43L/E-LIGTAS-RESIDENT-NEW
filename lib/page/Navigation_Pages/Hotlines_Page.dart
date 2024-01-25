@@ -147,10 +147,8 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
         onRefresh: _refresh,
         child: SingleChildScrollView(
           child: SafeArea(
-            child: Container(
-              margin: EdgeInsets.fromLTRB(0, 2.0.h, 0, 0),
-              height: screenHeight,
-              width: 100.w,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(0.h,1.h,0.h,2.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -185,7 +183,7 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
                   SizedBox(height: 1.0.h),
 
                   Container(
-                    height: 67.0.h,
+                    height: 68.0.h,
                     width: 98.w,
                     margin: EdgeInsets.symmetric(horizontal: 1.0.w),
                     decoration: BoxDecoration(

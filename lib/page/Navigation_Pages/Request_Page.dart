@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io'as io;
 import 'dart:typed_data';
 import 'package:awesome_dialog/awesome_dialog.dart';
-import 'package:eligtas_resident/page/Navigation_Pages/Report_Home.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,9 +14,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:dio/dio.dart';
 import 'package:eligtas_resident/CustomDialog/GalleryErrorDialog.dart';
-import 'package:eligtas_resident/CustomDialog/RequestSuccessDialog.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:provider/provider.dart';
+
 
 class Request_Page extends StatefulWidget {
 
@@ -171,7 +169,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
       if (placemarks != null && placemarks.isNotEmpty) {
         Placemark place = placemarks[0];
         setState(() {
-          _currentAddress = "${place.street}, ${place.administrativeArea}, ${place.locality}";
+          _currentAddress = "${place.street}, ${place.subLocality}, ${place.locality}";
         });
       } else {
         setState(() {
@@ -439,7 +437,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
          print(_selectedButton);
         },
         child: Container(
-          margin: EdgeInsets.all(8),
+          margin: EdgeInsets.all(2.w),
           decoration: BoxDecoration(
             border: Border.all(
               color: _selectedButton == buttonIndex ? Colors.blueAccent : Colors.black,
@@ -490,7 +488,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
     label,
     style: TextStyle(
     color: Colors.black,
-    fontSize: 22.0,
+    fontSize: 14.sp,
     ),
           ),
         ),
@@ -500,212 +498,202 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
   }
 
 
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    double containerWidth = MediaQuery.of(context).size.width*1.5 ;
-    double containerHeight = MediaQuery.of(context).size.height*1.03;
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: RefreshIndicator(
-        onRefresh: _refresh,
-        child: SingleChildScrollView(
-          child: SafeArea(
-            child: Container(
-              width: containerWidth,    //It will take a 20% of screen width
-              height:containerHeight,  //It will take a 30% of screen height
-              margin: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 0),
-              //decoration: BoxDecoration(
-              //color: Colors.white,
-              // border: Border.all(
-             // color: Colors.red,
-             //  width: 5,
-             // )),
-              child: Column(
-               crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
 
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Details of report',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 20.0,
-                        fontFamily: "Montserrat-Bold",
-                      ),
+      return Scaffold(
+        resizeToAvoidBottomInset: true,
+        body: RefreshIndicator(
+          onRefresh: _refresh,
+          child: SingleChildScrollView(
+            child: SafeArea(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(1.h,1.h,1.h,2.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Details of report',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 20.0,
+                              fontFamily: "Montserrat-Bold",
+                            ),
+                          ),
+                
+                
+                          TextButton.icon(
+                            onPressed: () {},
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(Colors.white),
+                              foregroundColor: MaterialStateProperty.all(Colors.black),
+                              padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+                              ),
+                            ),
+                            icon: Icon(Icons.restore),
+                            label: Text('History',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 20.0,
+                                fontFamily: "Montserrat-Bold",
+                              ),
+                            ),),
+                
+                        ]
                     ),
-
-
-                     TextButton.icon(
-                         onPressed: () {},
-                         style: ButtonStyle(
-                             backgroundColor: MaterialStateProperty.all(Colors.white),
-                             foregroundColor: MaterialStateProperty.all(Colors.black),
-                             padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                               EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-                             ),
-                         ),
-                         icon: Icon(Icons.restore),
-                         label: Text('History',
-                           style: TextStyle(
-                             fontWeight: FontWeight.w700,
-                             fontSize: 20.0,
-                             fontFamily: "Montserrat-Bold",
-                           ),
-                         ),),
-
-                    ]
-                  ),
-
-                  SizedBox(height: 1.0,),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-               crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Name: ',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15.0,
-                      color: Colors.black,
-                      fontFamily: "Montserrat-Regular",
-                    ),
-                  ),
-
-                  Text('${userInfo['name']?? 'Not Available'}',
-                    style: TextStyle(
-                      fontSize: 15.0,
-                      color: Colors.black,
-                      fontFamily: "Montserrat-Regular",
-                    ),
-                  ),
-                ],
-              ),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-
-                    children: [
-                      Text('Location: ',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15.0,
-                          color: Colors.black,
-                          fontFamily: "Montserrat-Regular",
-                        ),
-                      ),
-
-                    Container(
-                      width: containerWidth*0.32,
-                    // decoration: BoxDecoration(
-                      // color: Colors.white,
-                     //border: Border.all(
-                     //color: Colors.red,
-                    //  width: 5,
-                    // )),
-                      child:   _currentPosition != null
-                          ?  Text(_currentAddress,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: "Montserrat-Regular",
-                        ),
-                      )
-                          : Text('Location has not fetched yet', maxLines: 1,
-                        overflow: TextOverflow.ellipsis,),
-                    ),
-
-
-                      SizedBox(width:1.0),
-
-                      TextButton.icon(
-                        onPressed: () {
-                          _loading ? null : _checkLocationServiceAndGetCurrentLocation();
-                        },
-                        icon: Icon(Icons.location_on,size: 15.0,),
-                        label:_loading
-                            ? CircularProgressIndicator()
-                            : Text('Get Location'),
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(Colors.white),
-                          foregroundColor: MaterialStateProperty.all(Colors.black),
-                          padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                            EdgeInsets.symmetric(vertical: 0, horizontal:5),
+                
+                    SizedBox(height: 1.0,),
+                
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Name: ',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15.0,
+                            color: Colors.black,
+                            fontFamily: "Montserrat-Regular",
                           ),
                         ),
-                      ),
-
-
-                    ],
-                  ),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Phone Number: ',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15.0,
-                          color: Colors.black,
-                          fontFamily: "Montserrat-Regular",
+                
+                        Text('${userInfo['name']?? 'Not Available'}',
+                          style: TextStyle(
+                            fontSize: 15.0,
+                            color: Colors.black,
+                            fontFamily: "Montserrat-Regular",
+                          ),
                         ),
-                      ),
-
-                      Text('+${userInfo['phoneNumber']?? 'Not Available'}',
-                        style: TextStyle(
-                          fontSize: 15.0,
-                          color: Colors.black,
-                          fontFamily: "Montserrat-Regular",
-                        ),
-                      ),
-
-                    ],
-                  ),
-
-
-                  SizedBox(height: 20.0,),
-
-
-                  Text('Select the type of report',
-                    style: TextStyle(
-                      fontSize: 15.0,
-                      color: Colors.grey,
-                      fontFamily: "Montserrat-Regular",
+                      ],
                     ),
-                  ),
-
-                  SizedBox(height: 10.0,),
-
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildButton(0, 'Fire',Icons.local_fire_department_outlined, Colors.blue),
-                      _buildButton(1, 'Crime', Icons.local_police_outlined,Colors.blue),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildButton(2, 'Accident', Icons.car_crash,Colors.blue),
-                      _buildButton(3, 'Medical', Icons.medical_information_outlined, Colors.blue),
-                    ],
-                  ),
-                ],
-              ),
-
-
-                  SizedBox(height: 5.0),
-
-
-                 /* Row(
+                
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                
+                      children: [
+                        Text('Location: ',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15.0,
+                            color: Colors.black,
+                            fontFamily: "Montserrat-Regular",
+                          ),
+                        ),
+                
+                        Container(
+                          width: 40.w,
+                          // decoration: BoxDecoration(
+                          // color: Colors.white,
+                          //border: Border.all(
+                          //color: Colors.red,
+                          //  width: 5,
+                          // )),
+                          child:   _currentPosition != null
+                              ?  Text(_currentAddress,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontFamily: "Montserrat-Regular",
+                            ),
+                          )
+                              : Text('Location has not fetched yet', maxLines: 1,
+                            overflow: TextOverflow.ellipsis,),
+                        ),
+                
+                
+                        SizedBox(width:1.0),
+                
+                        TextButton.icon(
+                          onPressed: () {
+                            _loading ? null : _checkLocationServiceAndGetCurrentLocation();
+                          },
+                          icon: Icon(Icons.location_on,size: 15.0,),
+                          label:_loading
+                              ? CircularProgressIndicator()
+                              : Text('Get Location'),
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(Colors.white),
+                            foregroundColor: MaterialStateProperty.all(Colors.black),
+                            padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                              EdgeInsets.symmetric(vertical: 0, horizontal:5),
+                            ),
+                          ),
+                        ),
+                
+                
+                      ],
+                    ),
+                
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Phone Number: ',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15.0,
+                            color: Colors.black,
+                            fontFamily: "Montserrat-Regular",
+                          ),
+                        ),
+                
+                        Text('+${userInfo['phoneNumber']?? 'Not Available'}',
+                          style: TextStyle(
+                            fontSize: 15.0,
+                            color: Colors.black,
+                            fontFamily: "Montserrat-Regular",
+                          ),
+                        ),
+                
+                      ],
+                    ),
+                
+                
+                    SizedBox(height: 20.0,),
+                
+                
+                    Text('Select the type of report',
+                      style: TextStyle(
+                        fontSize: 15.0,
+                        color: Colors.grey,
+                        fontFamily: "Montserrat-Regular",
+                      ),
+                    ),
+                
+                    SizedBox(height: 10.0,),
+                
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildButton(0, 'Fire',Icons.local_fire_department_outlined, Colors.blue),
+                            _buildButton(1, 'Crime', Icons.local_police_outlined,Colors.blue),
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildButton(2, 'Accident', Icons.car_crash,Colors.blue),
+                            _buildButton(3, 'Medical', Icons.medical_information_outlined, Colors.blue),
+                          ],
+                        ),
+                      ],
+                    ),
+                
+                
+                    SizedBox(height: 5.0),
+                
+                
+                    /* Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton.icon(
@@ -726,218 +714,225 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                       ),
                     ],
                   ), */
-
-                  SizedBox(height: 5.0),
-
-                  Form(
-                    key: _formField,
-                    child: Column(
+                
+                    SizedBox(height: 5.0),
+                
+                    Form(
+                      key: _formField,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Describe your Situation',
+                            style: TextStyle(
+                
+                              fontSize: 15.0,
+                              color: Colors.grey,
+                              fontFamily: "Montserrat-Regular",
+                            ),
+                          ),
+                
+                          SizedBox(height: 10.0),
+                
+                          SizedBox(
+                            width: double.infinity, // <-- TextField width
+                            height: 150, // <-- TextField height
+                            child: TextFormField(
+                              controller: descriptionController,
+                              expands: true,
+                              maxLines: null,
+                              keyboardType: TextInputType.multiline,
+                              decoration: InputDecoration(
+                                isCollapsed: true,
+                                // isDense: true,
+                                hintText: 'Enter your Message',
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.only(top:15.0,bottom: 20.0, left:10.0, right: 10.0),
+                              ),
+                              validator: (value) {
+                
+                                if (value == null || value.isEmpty ) {
+                                  return "Please Input Description";
+                                }
+                                return null;
+                
+                              },
+                
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                
+                    SizedBox(height: 20.0),
+                
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Describe your Situation',
+                        Text('Upload an Photo Evidence',
                           style: TextStyle(
-
+                
                             fontSize: 15.0,
                             color: Colors.grey,
                             fontFamily: "Montserrat-Regular",
                           ),
                         ),
-
+                
                         SizedBox(height: 10.0),
-
-                        SizedBox(
-                          width: double.infinity, // <-- TextField width
-                          height: 150, // <-- TextField height
-                          child: TextFormField(
-                            controller: descriptionController,
-                            expands: true,
-                    maxLines: null,
-                    keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
-                      isCollapsed: true,
-                     // isDense: true,
-                      hintText: 'Enter your Message',
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.only(top:15.0,bottom: 20.0, left:10.0, right: 10.0),
-                    ),
-                                      validator: (value) {
-
-                                        if (value == null || value.isEmpty ) {
-                                          return "Please Input Description";
-                                        }
-                                        return null;
-
-                                      },
-
+                
+                        GestureDetector(
+                          onTap: () async{
+                            // Handle the click here
+                            status =  await Permission.photos.request();
+                            statusCamera =  await Permission.camera.request();
+                
+                            if (status.isGranted || statusCamera.isGranted) {
+                              await _showImageSourceDialog(context);
+                            } else {
+                              AwesomeDialog(
+                                context: context,
+                                dialogType: DialogType.warning,
+                                animType: AnimType.rightSlide,
+                                btnOkColor: Color.fromRGBO(51, 71, 246, 1),
+                                title: 'Error',
+                                desc: 'Please Allow Access to the Media or Camera ',
+                                btnOkOnPress: () {},
+                                dismissOnTouchOutside: false,
+                              )..show();
+                            }
+                          },
+                          child: DottedBorder(
+                            color: Colors.grey,
+                            strokeWidth: 2,
+                            dashPattern: [10,5],
+                            child: Container(
+                              color: Colors.grey[200],
+                              width: double.infinity,
+                              height: 190,
+                              child:_imageFile == null ? Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundImage: AssetImage('Assets/appIcon.png'),
+                                      radius: 50.0,
                                     ),
-                                  ),
+                                    Text(
+                                      'Upload an Image',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text('Max of 1 image only',
+                                      style: TextStyle(
+                                        fontSize: 10.0,
+                                        color: Colors.grey,
+                                        fontFamily: "Montserrat-Regular",
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ) : Image.file(
+                                _imageFile!,
+                                width: 170,
+                                height: 170,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-
-                  SizedBox(height: 20.0),
-
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Upload an Photo Evidence',
-                        style: TextStyle(
-
-                          fontSize: 15.0,
-                          color: Colors.grey,
-                          fontFamily: "Montserrat-Regular",
-                        ),
-                      ),
-
-                      SizedBox(height: 10.0),
-
-              GestureDetector(
-                onTap: () async{
-                  // Handle the click here
-                  status =  await Permission.photos.request();
-                  statusCamera =  await Permission.camera.request();
-
-                  if (status.isGranted || statusCamera.isGranted) {
-                    await _showImageSourceDialog(context);
-                  } else {
-                    AwesomeDialog(
-                      context: context,
-                      dialogType: DialogType.warning,
-                      animType: AnimType.rightSlide,
-                      btnOkColor: Color.fromRGBO(51, 71, 246, 1),
-                      title: 'Error',
-                      desc: 'Please Allow Access to the Media or Camera ',
-                      btnOkOnPress: () {},
-                      dismissOnTouchOutside: false,
-                    )..show();
-                  }
-                },
-                child: DottedBorder(
-                  color: Colors.grey,
-                  strokeWidth: 2,
-                  dashPattern: [10,5],
-                  child: Container(
-                    color: Colors.grey[200],
-                    width: double.infinity,
-                    height: 190,
-                    child:_imageFile == null ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: AssetImage('Assets/appIcon.png'),
-                            radius: 50.0,
-                          ),
-                          Text(
-                            'Upload an Image',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text('Max of 1 image only',
-                            style: TextStyle(
-                              fontSize: 10.0,
-                              color: Colors.grey,
-                              fontFamily: "Montserrat-Regular",
-                            ),
-                          ),
-                        ],
-                      ),
-                    ) : Image.file(
-                      _imageFile!,
-                      width: 170,
-                      height: 170,
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                ),
-              ),
-                    ],
-                  ),
-
-                  SizedBox(height: 20.0,),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 290.0,
-                        height: 50.0 ,
-                        child: TextButton(onPressed: (){
-
-                          if (_formField.currentState!.validate() && _selectedButton <4 && _imageFile !=null &&  _currentPosition != null
-                          && userInfo['name'] !=null) {
-
-
-                            Description = descriptionController.text;
-
-                            name = userInfo['name'];
-                            residentProfile = userInfo['image'];
-                            phoneNumber = int.parse(userInfo['phoneNumber']);
-                            finalNumber =phoneNumber.toString();
-
-                            Uri myLink = Uri.parse("https://www.google.com/maps/search/?api=1&query=$latitude,$longitude");
-                            locationLink = myLink.toString();
-
-                            AwesomeDialog(
-                              context: context,
-                              dialogType: DialogType.warning,
-                              animType: AnimType.rightSlide,
-                              btnOkColor: Color.fromRGBO(51, 71, 246, 1),
-                              title: "Confirm Information",
-                              desc: 'Are you sure that the information is accurate?',
-                              btnCancelOnPress: () {},
-                              btnOkOnPress: () {
-                                uploadImage();
-                              },
-                              dismissOnTouchOutside: false,
-                            )..show();
-
-                          }
-
-                          else{
-                            AwesomeDialog(
-                              context: context,
-                              dialogType: DialogType.warning,
-                              animType: AnimType.rightSlide,
-                              title: 'Warning!',
-                              btnOkColor: Color.fromRGBO(51, 71, 246, 1),
-                              desc: 'All Fields are Required',
-                              btnOkOnPress: () {},
-                            )..show();
-                          }
-                        },
-                            child: Text('Submit Report',
-                              style: TextStyle(
-                                fontFamily: 'Montserrat-Regular',
-                                fontSize:24.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),),
-                            style: ButtonStyle(
-                              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  side: BorderSide(color: Color.fromRGBO(51, 71, 246, 1)),
+                
+                    SizedBox(height: 20.0,),
+                
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 290.0,
+                          height: 50.0 ,
+                          child: TextButton(onPressed: (){
+                
+                            if (_formField.currentState!.validate() && _selectedButton <4 && _imageFile !=null &&  _currentPosition != null
+                                && userInfo['name'] !=null) {
+                
+                
+                              Description = descriptionController.text;
+                
+                              name = userInfo['name'];
+                              residentProfile = userInfo['image'];
+                              phoneNumber = int.parse(userInfo['phoneNumber']);
+                              finalNumber =phoneNumber.toString();
+                
+                              Uri myLink = Uri.parse("https://www.google.com/maps/search/?api=1&query=$latitude,$longitude");
+                              locationLink = myLink.toString();
+                
+                              AwesomeDialog(
+                                context: context,
+                                dialogType: DialogType.warning,
+                                animType: AnimType.rightSlide,
+                                btnOkColor: Color.fromRGBO(51, 71, 246, 1),
+                                title: "Confirm Information",
+                                desc: 'Are you sure that the information is accurate?',
+                                btnCancelOnPress: () {},
+                                btnOkOnPress: () {
+                                  uploadImage();
+                                },
+                                dismissOnTouchOutside: false,
+                              )..show();
+                
+                            }
+                
+                            else{
+                              AwesomeDialog(
+                                context: context,
+                                dialogType: DialogType.warning,
+                                animType: AnimType.rightSlide,
+                                title: 'Warning!',
+                                btnOkColor: Color.fromRGBO(51, 71, 246, 1),
+                                desc: 'All Fields are Required',
+                                btnOkOnPress: () {},
+                              )..show();
+                            }
+                          },
+                              child: Text('Submit Report',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat-Regular',
+                                  fontSize:24.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
                                 ),),
-                              backgroundColor: MaterialStatePropertyAll<Color>(Color.fromRGBO(51, 71, 246, 1)),
-                            )),
-                      ),
-                    ],
-                  ),
-
-                ],
+                              style: ButtonStyle(
+                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    side: BorderSide(color: Color.fromRGBO(51, 71, 246, 1)),
+                                  ),),
+                                backgroundColor: MaterialStatePropertyAll<Color>(Color.fromRGBO(51, 71, 246, 1)),
+                              )),
+                        ),
+                      ],
+                    ),
+                
+                  ],
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
-}
+      );
+    } 
+    
+
+    }
+  
+
+
+
+
 
 
 

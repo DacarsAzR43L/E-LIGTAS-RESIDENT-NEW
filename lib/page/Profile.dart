@@ -77,16 +77,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         toolbarHeight: 60.0,
         shadowColor: Colors.black,
       ),
-      body: Container(
-        width: screenWidth,
-        height: 99.h,
-        // decoration: BoxDecoration(
-      //  color: Colors.white,
-       //  border: Border.all(
-       // color: Colors.red,
-       // width: 5,
-       // )),
-        margin: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+      body: Padding(
+        padding: EdgeInsets.fromLTRB(1.h,4.h,1.h,0.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -102,8 +94,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-    Navigator.push(context,
-    MaterialPageRoute(builder: (context) => Edit_ProfileScreen(uid: uid)));
+            Navigator.push(context,
+            MaterialPageRoute(builder: (context) => Edit_ProfileScreen(uid: uid)));
 
                   },
                   style: ElevatedButton.styleFrom(
@@ -120,10 +112,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 30.0),
-            Container(
-              width: 100.w,
-              height: 33.0.h,
+            SizedBox(height: 15.0),
+            Padding(
+              padding: EdgeInsets.fromLTRB(1.h,2.h,1.h,0.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -135,7 +126,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       fontFamily: "Montserrat-Bold",
                     ),
                   ),
-                  SizedBox(height: 10.0),
+                  SizedBox(height: 5.0),
                   buildDetailRow('Name:', '${userInfo['name']?? 'Not Available'}'),
                   buildDetailRow('Address:', '${userInfo['address']?? 'Not Available'}'),
                   buildDetailRow('Phone Number:', '+${userInfo['phoneNumber']?? 'Not Available'}'),

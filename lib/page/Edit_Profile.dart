@@ -492,10 +492,8 @@ class _Edit_ProfileScreenState extends State<Edit_ProfileScreen> {
     ),
     body: SingleChildScrollView(
       child: SafeArea(
-        child: Container(
-          margin: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
-          width: 100.w,
-          height: 85.h,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(1.h,4.h,1.h,3.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -512,7 +510,7 @@ class _Edit_ProfileScreenState extends State<Edit_ProfileScreen> {
 
               CircleAvatar(
                 key: _imageFile != null ? ValueKey<String>(_imageFile!.path) : null,
-                radius: 80,
+                radius: 15.w,
                 backgroundColor: Colors.grey,
                 child: _imageFile == null
                     ? Icon(Icons.person, size: 80, color: Colors.white)
@@ -520,8 +518,8 @@ class _Edit_ProfileScreenState extends State<Edit_ProfileScreen> {
                   child: Image.memory(
                     _imageFile!.readAsBytesSync(), // Read image bytes directly
                     key: ValueKey<String>(_imageFile!.path), // Use the file path as a key
-                    width: 170,
-                    height: 170,
+                    width: 40.w,
+                    height: 40.w,
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -561,9 +559,8 @@ class _Edit_ProfileScreenState extends State<Edit_ProfileScreen> {
                 ),
               ),
               SizedBox(height: 9.0,),
-              Container(
-                width: 100.w,
-                height: 41.8.h,
+              Padding(
+                padding: EdgeInsets.fromLTRB(1.h,2.h,1.h,0.h),
                 child: Form(
                   key: formKey,
                   child: Column(
@@ -677,13 +674,14 @@ class _Edit_ProfileScreenState extends State<Edit_ProfileScreen> {
                   ),
                 ),
               ),
+              SizedBox(height: 2.h),
               Container(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     SizedBox(
-                      width: 400.0,
-                      height: 50.0,
+                      width: 90.w,
+                      height: 7.h,
                       child: TextButton(
                         onPressed: () {
                           String _userInput = _phoneController.text;
