@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io'as io;
 import 'dart:typed_data';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:eligtas_resident/page/History.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -527,7 +528,11 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                 
                 
                           TextButton.icon(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) => History(uid: uid)));
+                              print('Settings icon pressed');
+                            },
                             style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all(Colors.white),
                               foregroundColor: MaterialStateProperty.all(Colors.black),
