@@ -2,6 +2,7 @@
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:eligtas_resident/page/Legal%20Policies.dart';
 import 'package:eligtas_resident/page/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 
 import '../CustomDialog/LoginSuccessDialog.dart';
+import 'AboutUs.dart';
 import 'Home.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -86,7 +88,8 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 InkWell(
                   onTap: () {
-                    // Handle Legal Policies click
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => LegalPolicies()));
                   },
                   child: ListTile(
                     title: Text(
@@ -94,7 +97,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(
-                      'Your legal policies description goes here.',
+                      'About E-Litas Legal Policies and Regulations',
                       style: TextStyle(fontSize: 16),
                     ),
                     contentPadding: EdgeInsets.symmetric(horizontal: 16),
@@ -103,7 +106,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 Divider(),
                 InkWell(
                   onTap: () {
-                    // Handle About E-Ligtas click
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => AboutUs()));
                   },
                   child: ListTile(
                     title: Text(
@@ -111,7 +115,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(
-                      'Your about E-Ligtas description goes here.',
+                      'Addition Information for E-Ligtas',
                       style: TextStyle(fontSize: 16),
                     ),
                     contentPadding: EdgeInsets.symmetric(horizontal: 16),

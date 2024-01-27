@@ -58,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen>  with AutomaticKeepAliveClientM
     super.initState();
     _selectedPageIndex = 1;
     _pages = [
-      Guidelines_Page(),
+      GuidelinesPage(),
       Request_Page(uid: uid),
       Hotlines_Page(),
     ];
