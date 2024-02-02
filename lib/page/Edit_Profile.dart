@@ -158,7 +158,7 @@ class _Edit_ProfileScreenState extends State<Edit_ProfileScreen> {
   Future<void> fetchData() async {
     try {
       var response = await http.get(Uri.parse(
-          "http://192.168.100.7/e-ligtas-resident/get_profile_info.php?uid=${widget.uid}"));
+          "https://eligtas.site/public/storage/get_profile_info.php?uid=${widget.uid}"));
 
       if (response.statusCode == 200) {
         setState(() {
@@ -248,7 +248,7 @@ class _Edit_ProfileScreenState extends State<Edit_ProfileScreen> {
     });
 
     Dio dio = Dio();
-    var response = await dio.post('http://192.168.100.7/e-ligtas-resident/save_edit_profile_new_picture.php', data: formData);
+    var response = await dio.post('https://eligtas.site/public/storage/save_edit_profile_new_picture.php', data: formData);
 
     var res = response.data;
 
@@ -288,7 +288,7 @@ class _Edit_ProfileScreenState extends State<Edit_ProfileScreen> {
     });
 
     Dio dio = Dio();
-    var response = await dio.post('http://192.168.100.7/e-ligtas-resident/save_edit_profile_old_picture.php', data: formData);
+    var response = await dio.post('https://eligtas.site/public/storage/save_edit_profile_old_picture.php', data: formData);
 
     var res = response.data;
 
@@ -330,7 +330,7 @@ class _Edit_ProfileScreenState extends State<Edit_ProfileScreen> {
     }
 
     final response = await http.get(Uri.parse(
-        'http://192.168.100.7/e-ligtas-resident/check_edit_number.php?uid=$uid&phonenumber=$phone_number'));
+        'https://eligtas.site/public/storage/check_edit_number.php?uid=$uid&phonenumber=$phone_number'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -410,7 +410,7 @@ class _Edit_ProfileScreenState extends State<Edit_ProfileScreen> {
     }
 
     final response = await http.get(Uri.parse(
-        'http://192.168.100.7/e-ligtas-resident/check_edit_number.php?uid=$uid&phonenumber=$phone_number'));
+        'https://eligtas.site/public/storage/check_edit_number.php?uid=$uid&phonenumber=$phone_number'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);

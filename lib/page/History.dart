@@ -3,6 +3,7 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
@@ -111,7 +112,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
       }
 
       // Make an API call to remove data from the database based on reportId
-      final String apiUrl = 'http://192.168.100.7/e-ligtas-resident/delete_pending_history.php?report_id=$reportId';
+      final String apiUrl = 'https://eligtas.site/public/storage/delete_pending_history.php?report_id=$reportId';
       final response = await http.get(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
@@ -163,7 +164,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
     }
 
     try {
-      final String apiUrl = 'http://192.168.100.7/e-ligtas-resident/get_pending_history.php?uid=${widget.uid}';
+      final String apiUrl = 'https://eligtas.site/public/storage/get_pending_history.php?uid=${widget.uid}';
       final response = await http.get(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
@@ -212,7 +213,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
     }
 
     try {
-      final String apiUrl = 'http://192.168.100.7/e-ligtas-resident/get_accepted_history.php?uid=${widget.uid}';
+      final String apiUrl = 'https://eligtas.site/public/storage/get_accepted_history.php?uid=${widget.uid}';
       final response = await http.get(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
@@ -368,11 +369,11 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
         });
       },
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding:  EdgeInsets.all(5.w),
         child: Card(
           elevation: 5,
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding:  EdgeInsets.all(4.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -391,12 +392,14 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
                         Text(
                           name,
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 13.sp,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text('Emergency type: $emergencyType'),
-                        Text('Date: $date'),
+                        Text('Date: $date',style: TextStyle(
+                          fontSize: 9.sp,
+                        ),),
                       ],
                     ),
                   ],
@@ -415,51 +418,47 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
                 SizedBox(height: 16),
 
                 if (isPendingTab)
-                  SizedBox(
-                    width: 290.0,
-                    height: 30.0,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            AwesomeDialog(
-                              context: context,
-                              dialogType: DialogType.warning,
-                              animType: AnimType.rightSlide,
-                              btnOkColor: Color.fromRGBO(51, 71, 246, 1),
-                              title: "Confirm Information",
-                              desc: 'Are you sure to delete the report?',
-                              btnCancelOnPress: () {},
-                              btnOkOnPress: () {
-                                removeFromList(report_id);
-                              },
-                              dismissOnTouchOutside: false,
-                            )..show();
-                          },
-                          child: Text(
-                            'Cancel Request',
-                            style: TextStyle(
-                              fontFamily: 'Montserrat-Regular',
-                              fontSize: 24.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          style: ButtonStyle(
-                            shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                side: BorderSide(color: Colors.red),
-                              ),
-                            ),
-                            backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.red),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          AwesomeDialog(
+                            context: context,
+                            dialogType: DialogType.warning,
+                            animType: AnimType.rightSlide,
+                            btnOkColor: Color.fromRGBO(51, 71, 246, 1),
+                            title: "Confirm Information",
+                            desc: 'Are you sure to delete the report?',
+                            btnCancelOnPress: () {},
+                            btnOkOnPress: () {
+                              removeFromList(report_id);
+                            },
+                            dismissOnTouchOutside: false,
+                          )..show();
+                        },
+                        child: Text(
+                          'Cancel Request',
+                          style: TextStyle(
+                            fontFamily: 'Montserrat-Regular',
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
-                      ],
-                    ),
+                        style: ButtonStyle(
+                          shape:
+                          MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              side: BorderSide(color: Colors.red),
+                            ),
+                          ),
+                          backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.red),
+                        ),
+                      ),
+                    ],
                   ),
                 Container(
                   width: isPendingTab ? 500 : 300, // Adjust the width based on the tab

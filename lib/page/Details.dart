@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 class DetailsPage extends StatefulWidget {
   final String id;
@@ -28,7 +29,7 @@ class _DetailsPageState extends State<DetailsPage> {
   }
 
   Future<List<Map<String, dynamic>>> fetchGuidelinesData(String guidelinesId, String section) async {
-    final apiUrl = 'http://192.168.100.7/e-ligtas-resident/get_${section}_guidelines.php?guidelines_id=$guidelinesId';
+    final apiUrl = 'https://eligtas.site/public/storage/get_${section}_guidelines.php?guidelines_id=$guidelinesId';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -48,6 +49,8 @@ class _DetailsPageState extends State<DetailsPage> {
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,76 +63,62 @@ class _DetailsPageState extends State<DetailsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Before
+              // Before, During, and After combined
               FutureBuilder(
-                future: beforeData,
-                builder: (context, snapshot) {
+                future: Future.wait([beforeData, duringData, afterData]),
+                builder: (context, AsyncSnapshot<List<List<Map<String, dynamic>>>> snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Container(); // Placeholder for 'Before' section
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ],
+                    );
                   } else if (snapshot.hasError) {
                     return Text("Error: ${snapshot.error}");
                   } else {
-                    List<Map<String, dynamic>> data = snapshot.data as List<Map<String, dynamic>>;
-                    if (data.isNotEmpty) {
-                      return SectionWidget(
-                        heading: 'Before',
-                        guidelinesId: widget.id,
-                        imageData: base64Decode(data[0]['image']),
-                        sampleText: data[0]['description'],
-                      );
-                    } else {
-                      return Text("No data available for 'Before' section");
-                    }
-                  }
-                },
-              ),
-              SizedBox(height: 20),
+                    List<List<Map<String, dynamic>>> dataList = snapshot.data as List<List<Map<String, dynamic>>>;
+                    return Column(
+                      children: [
+                        // Before
+                        if (dataList[0].isNotEmpty)
+                          SectionWidget(
+                            heading: 'Before',
+                            title: dataList[0][0]['headings'],
+                            imageData: base64Decode(dataList[0][0]['image']),
+                            sampleText: dataList[0][0]['description'],
+                          )
+                        else
+                          Text("No data available for 'Before' section"),
+                        SizedBox(height: 20),
 
-              // During
-              FutureBuilder(
-                future: duringData,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Container(); // Placeholder for 'During' section
-                  } else if (snapshot.hasError) {
-                    return Text("Error: ${snapshot.error}");
-                  } else {
-                    List<Map<String, dynamic>> data = snapshot.data as List<Map<String, dynamic>>;
-                    if (data.isNotEmpty) {
-                      return SectionWidget(
-                        heading: 'During',
-                        guidelinesId: widget.id,
-                        imageData: base64Decode(data[0]['image']),
-                        sampleText: data[0]['description'],
-                      );
-                    } else {
-                      return Text("No data available for 'During' section");
-                    }
-                  }
-                },
-              ),
-              SizedBox(height: 20),
+                        // During
+                        if (dataList[1].isNotEmpty)
+                          SectionWidget(
+                            heading: 'During',
+                            title: dataList[1][0]['headings'],
+                            imageData: base64Decode(dataList[1][0]['image']),
+                            sampleText: dataList[1][0]['description'],
+                          )
+                        else
+                          Text("No data available for 'During' section"),
+                        SizedBox(height: 20),
 
-              // After
-              FutureBuilder(
-                future: afterData,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Container(); // Placeholder for 'After' section
-                  } else if (snapshot.hasError) {
-                    return Text("Error: ${snapshot.error}");
-                  } else {
-                    List<Map<String, dynamic>> data = snapshot.data as List<Map<String, dynamic>>;
-                    if (data.isNotEmpty) {
-                      return SectionWidget(
-                        heading: 'After',
-                        guidelinesId: widget.id,
-                        imageData: base64Decode(data[0]['image']),
-                        sampleText: data[0]['description'],
-                      );
-                    } else {
-                      return Text("No data available for 'After' section");
-                    }
+                        // After
+                        if (dataList[2].isNotEmpty)
+                          SectionWidget(
+                            heading: 'After',
+                            title: dataList[2][0]['headings'],
+                            imageData: base64Decode(dataList[2][0]['image']),
+                            sampleText: dataList[2][0]['description'],
+                          )
+                        else
+                          Text("No data available for 'After' section"),
+                      ],
+                    );
                   }
                 },
               ),
@@ -143,13 +132,13 @@ class _DetailsPageState extends State<DetailsPage> {
 
 class SectionWidget extends StatelessWidget {
   final String heading;
-  final String guidelinesId;
+  final String title;
   final Uint8List? imageData;
   final String sampleText;
 
   SectionWidget({
     required this.heading,
-    required this.guidelinesId,
+    required this.title,
     required this.imageData,
     required this.sampleText,
   });
@@ -164,6 +153,13 @@ class SectionWidget extends StatelessWidget {
           style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 10.sp),
+
+        Text(
+          title,
+          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 10.sp),
+
         Center(
           child: imageData != null
               ? Image.memory(

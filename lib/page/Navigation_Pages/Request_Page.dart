@@ -3,6 +3,7 @@ import 'dart:io'as io;
 import 'dart:typed_data';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:eligtas_resident/page/History.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -90,7 +91,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
   Future<void> fetchData() async {
     try {
       var response = await http.get(
-          Uri.parse("http://192.168.100.7/e-ligtas-resident/get_report_info.php?uid=${widget.uid}"));
+          Uri.parse("https://eligtas.site/public/storage/get_report_info.php?uid=${widget.uid}"));
 
       if (response.statusCode == 200) {
         setState(() {
@@ -276,28 +277,62 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
   }
 
   Future<void> _pickImage(ImageSource gallery) async {
-    final XFile? image = await ImagePicker().pickImage(source: gallery);
+    try {
+      final XFile? image = await ImagePicker().pickImage(source: gallery);
 
-    if (image != null) {
-      List<int> imageBytes = await io.File(image.path).readAsBytes();
+      if (image != null) {
+        List<int> imageBytes = await io.File(image.path).readAsBytes();
 
-      // Convert bytes to Uint8List
-      Uint8List uint8List = Uint8List.fromList(imageBytes);
+        // Convert List<int> to Uint8List
+        Uint8List uint8List = Uint8List.fromList(imageBytes);
 
-      // Encode Uint8List to base64
-      String base64Image = 'data:image/${image.path.split('.').last};base64,' + base64Encode(imageBytes);
+        // Print original image size
+        print("Original Size: ${uint8List.length} bytes");
 
-      setState(() {
-        _imageFile = io.File(image.path);
-        _imageName = image.path.split('/').last;
-        _imageData = base64Image;
+        // Compress image using flutter_image_compress
+        List<int> compressedBytes = await FlutterImageCompress.compressWithList(
+          uint8List,
+          minHeight: 720,
+          minWidth: 720,
+          quality: 50,
+          format: CompressFormat.webp,
+        );
 
-        print("Base64 Image Data: $_imageData");
-        print("Image Name: $_imageName");
-        print("Image File: $_imageFile");
-      });
+        // Print compressed image size
+        print("Compressed Size: ${compressedBytes.length} bytes");
+
+        // Save compressed bytes to the image file
+        await io.File(image.path).writeAsBytes(compressedBytes);
+
+        // Convert compressed bytes to Uint8List
+        Uint8List compressedUint8List = Uint8List.fromList(compressedBytes);
+
+        // Encode Uint8List to base64
+        String base64Image =
+            'data:image/${image.path.split('.').last};base64,' +
+                base64Encode(compressedUint8List);
+
+        // Print image file size after compression
+        print(
+            "Image File Size After Compression: ${io.File(image.path).lengthSync()} bytes");
+
+        setState(() {
+          _imageFile = io.File(image.path);
+          _imageName = image.path.split('/').last;
+          _imageData = base64Image;
+
+          print("Base64 Image Data: $_imageData");
+          print("Image Name: $_imageName");
+          print("Image File: $_imageFile");
+        });
+      }
+    } catch (e) {
+      print("Error during image picking: $e");
     }
   }
+
+
+
 
 
 
@@ -339,7 +374,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
 
       Dio dio = Dio();
       Response response = await dio.post(
-        'http://192.168.100.7/e-ligtas-resident/send_reports.php',
+        'https://eligtas.site/public/storage/send_reports.php',
         data: formData,
       );
 

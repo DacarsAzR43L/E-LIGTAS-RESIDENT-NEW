@@ -1,24 +1,18 @@
 import 'package:eligtas_resident/page/Edit_Profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
-import 'package:eligtas_resident/page/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'dart:convert';
 
 import '../main.dart';
 
-
 class ProfileScreen extends StatefulWidget {
-
-
   final auth = FirebaseAuth.instance;
   User? user;
   String? uid = FirebaseAuth.instance.currentUser?.uid;
 
-
   ProfileScreen({required this.uid});
-
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -34,11 +28,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     // Fetch image data when the widget is initialized
-
     fetchData();
   }
 
- Future<void> signOutUser() async {
+  Future<void> signOutUser() async {
     try {
       await FirebaseAuth.instance.signOut();
       // User is signed out.
@@ -48,13 +41,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-
   // Function to fetch image data
   Future<void> fetchData() async {
     try {
       // Replace "http://your-server/retrieve_image.php" with your actual server URL
-      var response = await http.get(
-          Uri.parse("http://192.168.100.7/e-ligtas-resident/get_profile_info.php?uid=${widget.uid}"));
+      var response = await http.get(Uri.parse("https://eligtas.site/public/storage/get_profile_info.php?uid=${widget.uid}"));
 
       if (response.statusCode == 200) {
         setState(() {
@@ -66,10 +57,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width*1.5;
+    double screenWidth = MediaQuery.of(context).size.width * 1.5;
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
@@ -78,7 +68,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         shadowColor: Colors.black,
       ),
       body: Padding(
-        padding: EdgeInsets.fromLTRB(1.h,4.h,1.h,0.h),
+        padding: EdgeInsets.fromLTRB(1.h, 4.h, 1.h, 0.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -94,9 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-            Navigator.push(context,
-            MaterialPageRoute(builder: (context) => Edit_ProfileScreen(uid: uid)));
-
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => Edit_ProfileScreen(uid: uid)));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromRGBO(51, 71, 246, 1),
@@ -114,7 +102,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             SizedBox(height: 15.0),
             Padding(
-              padding: EdgeInsets.fromLTRB(1.h,2.h,1.h,0.h),
+              padding: EdgeInsets.fromLTRB(1.h, 2.h, 1.h, 0.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -127,9 +115,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   SizedBox(height: 5.0),
-                  buildDetailRow('Name:', '${userInfo['name']?? 'Not Available'}'),
-                  buildDetailRow('Address:', '${userInfo['address']?? 'Not Available'}'),
-                  buildDetailRow('Phone Number:', '+${userInfo['phoneNumber']?? 'Not Available'}'),
+                  buildDetailRow('Name:', '${userInfo['name'] ?? 'Not Available'}'),
+                  buildDetailRow('Address:', '${userInfo['address'] ?? 'Not Available'}'),
+                  buildDetailRow('Phone Number:', '+${userInfo['phoneNumber'] ?? 'Not Available'}'),
                   //buildDetailRow('UID:', uid ?? 'No UID available'),
                 ],
               ),
@@ -145,14 +133,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: 10.0),
-        Text(
-          label,
-          style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 10.0),
-        Text(
-          value,
-          style: TextStyle(fontSize: 16.0),
+        RichText(
+          text: TextSpan(
+            style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.black),
+            children: [
+              TextSpan(text: '$label\n'),
+              TextSpan(text: value, style: TextStyle(fontWeight: FontWeight.normal)),
+            ],
+          ),
         ),
       ],
     );

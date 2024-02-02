@@ -77,7 +77,7 @@ class _GuidelinesPageState extends State<GuidelinesPage> {
     }
 
     final String apiUrl =
-        'http://192.168.100.7/e-ligtas-resident/get_disasters.php?disaster_type=$category';
+        'https://eligtas.site/public/storage/get_disasters.php?disaster_type=$category';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));

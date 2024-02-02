@@ -167,7 +167,7 @@ late PermissionStatus statusCamera;
       });
 
       Dio dio = Dio();
-      var response = await dio.post('http://192.168.100.7/e-ligtas-resident/upload_profile.php', data: formData);
+      var response = await dio.post('https://eligtas.site/public/storage/upload_profile.php', data: formData);
 
       var res = response.data;
 
@@ -209,7 +209,7 @@ late PermissionStatus statusCamera;
     }
 
     final response = await http.get(Uri.parse(
-        'http://192.168.100.7/e-ligtas-resident/check_number.php?phone_number=$phone_number'));
+        'https://eligtas.site/public/storage/check_number.php?phone_number=$phone_number'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);

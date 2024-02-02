@@ -20,7 +20,7 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
 
   Future<Database> initDatabase() async {
     final databasesPath = await getDatabasesPath();
-    final path = join(databasesPath, 'hotlines.db');
+    final path = join(databasesPath, 'hotlines1.db');
     return await openDatabase(
       path,
       version: 1,
@@ -28,7 +28,7 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
         await db.execute('''
           CREATE TABLE hotlines (
             id INTEGER PRIMARY KEY,
-            sector_from TEXT,
+            userfrom TEXT,
             hotlines_number TEXT
           )
         ''');
@@ -48,7 +48,7 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
     final List<Map<String, dynamic>> maps = await _database.query('hotlines');
     return List.generate(maps.length, (i) {
       return {
-        'sector_from': maps[i]['sector_from'],
+        'userfrom': maps[i]['userfrom'],
         'hotlines_number': maps[i]['hotlines_number'],
       };
     });
@@ -111,7 +111,7 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
 
   Future<List<dynamic>> fetchData() async {
     final response =
-    await http.get(Uri.parse('http://192.168.100.7/e-ligtas-resident/retrieve_hotlines.php'));
+    await http.get(Uri.parse('https://eligtas.site/public/storage/retrieve_hotlines.php'));
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -132,7 +132,7 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
     setState(() {
       displayedData = originalData
           .where((item) =>
-      item['sector_from'].toLowerCase().contains(query.toLowerCase()) ||
+      item['userfrom'].toLowerCase().contains(query.toLowerCase()) ||
           item['hotlines_number'].contains(query))
           .toList();
     });
@@ -212,7 +212,7 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
                           ),
                           child: ListTile(
                             title: Text(
-                              '${displayedData[index]['sector_from']}',
+                              '${displayedData[index]['userfrom']}',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14.0.sp,

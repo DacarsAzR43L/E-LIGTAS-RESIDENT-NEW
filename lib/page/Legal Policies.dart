@@ -32,7 +32,7 @@ class _LegalPoliciesState extends State<LegalPolicies> {
   }
 
   Future<List<Map<String, dynamic>>> fetchLegalPolicies(String settingsName) async {
-    final apiUrl = 'http://192.168.100.7/e-ligtas-resident/get_about_us.php?settings_name=$settingsName';
+    final apiUrl = 'https://eligtas.site/public/storage/get_about_us.php?settings_name=$settingsName';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
