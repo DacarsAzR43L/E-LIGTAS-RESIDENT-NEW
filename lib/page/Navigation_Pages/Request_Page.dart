@@ -366,7 +366,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
         'locationLink': locationLink,
         'phoneNumber': finalNumber,
         'message': Description,
-        'imageEvidence': await MultipartFile.fromFile(_imageFile!.path, filename: 'image.jpg'),
+        'imageEvidence': await MultipartFile.fromFile(_imageFile!.path, filename: 'image.webp'),
         'residentProfile': residentProfile,
         'dateTime': DateTime.now().toLocal().toString(),
         'status': statusReport,

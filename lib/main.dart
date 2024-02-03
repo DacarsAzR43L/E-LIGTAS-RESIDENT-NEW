@@ -1,4 +1,3 @@
-
 import 'package:eligtas_resident/CustomDialog/GalleryErrorDialog.dart';
 import 'package:eligtas_resident/CustomDialog/LoginSuccessDialog.dart';
 import 'package:eligtas_resident/CustomDialog/RegisterSucessDialog.dart';
@@ -24,7 +23,6 @@ import 'package:sizer/sizer.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
-
 int? isviewed;
 bool? isLoggedIn;
 String? uid = FirebaseAuth.instance.currentUser?.uid;
@@ -32,21 +30,24 @@ String? uid = FirebaseAuth.instance.currentUser?.uid;
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  FlutterNativeSplash.remove();
-
 
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top], );
   SharedPreferences prefs = await SharedPreferences.getInstance();
   isviewed = prefs.getInt('onBoard');
   isLoggedIn = prefs.getBool('isLoggedin');
-
   print(isviewed);
+
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
   runApp(MyApp());
 }
+
+
+
 
 Future<bool?> checkUserVerification() async {
   FirebaseAuth auth = FirebaseAuth.instance;
@@ -64,10 +65,23 @@ Future<bool?> checkUserVerification() async {
 
 
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   String? uid = FirebaseAuth.instance.currentUser?.uid;
 
+  @override
+  void initState() {
+    super.initState();
+    initialization();
+  }
 
+  void initialization() async {
+    FlutterNativeSplash.remove();
+  }
 
   // This widget is the root of your application.
   @override
@@ -78,7 +92,7 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             title: 'Title',
             theme: ThemeData(primarySwatch: Colors.blue),
-              home: isviewed != 0 ? OnBoardingPage() : isLoggedIn ==true ? HomeScreen(uid: uid) : FutureBuilder(
+              home: isviewed != 0 ? OnBoardingPage()  : isLoggedIn ==true ? HomeScreen(uid: uid) : FutureBuilder(
                   future: checkUserVerification(), builder: (context, snapshot){
 
     if (snapshot.hasError || snapshot.data == false) {
@@ -90,6 +104,7 @@ class MyApp extends StatelessWidget {
     }})
           );
         }
+
     );
   }
 }

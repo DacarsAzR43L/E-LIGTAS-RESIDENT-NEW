@@ -18,7 +18,7 @@ class HistoryRequestCard {
   final residentProfile;
   final image;
   final locationName;
-  final reportId;
+  final  reportId;
 
   HistoryRequestCard({
     required this.id,

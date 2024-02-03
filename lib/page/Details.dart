@@ -23,9 +23,9 @@ class _DetailsPageState extends State<DetailsPage> {
   @override
   void initState() {
     super.initState();
-    beforeData = fetchGuidelinesData(widget.id, 'Before');
-    duringData = fetchGuidelinesData(widget.id, 'During');
-    afterData = fetchGuidelinesData(widget.id, 'After');
+    beforeData = fetchGuidelinesData(widget.id, 'before');
+    duringData = fetchGuidelinesData(widget.id, 'during');
+    afterData = fetchGuidelinesData(widget.id, 'after');
   }
 
   Future<List<Map<String, dynamic>>> fetchGuidelinesData(String guidelinesId, String section) async {
@@ -39,12 +39,12 @@ class _DetailsPageState extends State<DetailsPage> {
         return List<Map<String, dynamic>>.from(data);
       } else {
         // Handle errors
-        print("Error: ${response.statusCode}");
+        print("Error1: ${response.statusCode}");
         return [];
       }
     } catch (e) {
       // Handle network or other errors
-      print("Error: $e");
+      print("Error2: $e");
       return [];
     }
   }
