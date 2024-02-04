@@ -73,17 +73,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String? uid = FirebaseAuth.instance.currentUser?.uid;
 
-  @override
-  void initState() {
-    super.initState();
-    initialization();
-  }
 
-  void initialization() async {
-    FlutterNativeSplash.remove();
-  }
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return Sizer(

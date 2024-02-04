@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:eligtas_resident/page/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
-class OnBoardingPage extends StatelessWidget {
+class OnBoardingPage extends StatefulWidget {
 
 
+  @override
+  State<OnBoardingPage> createState() => _OnBoardingPageState();
+}
+
+class _OnBoardingPageState extends State<OnBoardingPage> {
   _storeOnboardInfo() async {
     print("Shared pref called");
     int isViewed = 0;
@@ -13,6 +19,26 @@ class OnBoardingPage extends StatelessWidget {
     await prefs.setInt('onBoard', isViewed);
     print(prefs.getInt('onBoard'));
   }
+
+  @override
+  void initState() {
+    super.initState();
+    initialization();
+  }
+
+  void initialization() async {
+    print('ready in 3...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('ready in 2...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('ready in 1...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('go!');
+    FlutterNativeSplash.remove();
+  }
+
+  // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) => SafeArea(
         child: IntroductionScreen(
@@ -66,7 +92,6 @@ class OnBoardingPage extends StatelessWidget {
         ),
       );
 
-
   Widget buildImage(String path) =>
       Center(child: Image.asset(path, width: 350));
 
@@ -94,5 +119,4 @@ class OnBoardingPage extends StatelessWidget {
     bodyAlignment: Alignment.topCenter,
     imageAlignment: Alignment.centerRight,
   );
-
 }

@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:eligtas_resident/page/onboarding_page.dart';
 import 'package:eligtas_resident/page/sign_up.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 import 'package:eligtas_resident/CustomDialog/LoginSuccessDialog.dart';
@@ -128,6 +129,24 @@ class _LoginPageState extends State<LoginPage> {
       dismissOnTouchOutside: false,
     )..show();
   }
+
+  @override
+  void initState() {
+    super.initState();
+    initialization();
+  }
+
+  void initialization() async {
+    print('ready in 3...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('ready in 2...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('ready in 1...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('go!');
+    FlutterNativeSplash.remove();
+  }
+
 
   @override
   Widget build(BuildContext context) => Scaffold(

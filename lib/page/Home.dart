@@ -8,6 +8,7 @@ import 'package:eligtas_resident/page/Navigation_Pages/Guidelines_Page.dart';
 import 'package:eligtas_resident/page/Navigation_Pages/Hotlines_Page.dart';
 import 'package:eligtas_resident/page/Navigation_Pages/Request_Page.dart';
 import 'package:eligtas_resident/page/Navigation_Pages/Report_Home.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -63,8 +64,20 @@ class _HomeScreenState extends State<HomeScreen>  with AutomaticKeepAliveClientM
       Hotlines_Page(),
     ];
     _pageController = PageController(initialPage: _selectedPageIndex);
+    initialization();
   }
 
+
+  void initialization() async {
+    print('ready in 3...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('ready in 2...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('ready in 1...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('go!');
+    FlutterNativeSplash.remove();
+  }
 
 
 

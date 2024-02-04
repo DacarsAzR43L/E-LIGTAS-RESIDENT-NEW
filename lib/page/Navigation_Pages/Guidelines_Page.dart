@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-
+import 'package:cached_memory_image/cached_memory_image.dart';
+import 'package:sizer/sizer.dart';
 import '../Details.dart';
 
 class Guidelines {
@@ -184,21 +185,20 @@ class _GuidelinesPageState extends State<GuidelinesPage> {
                           child: Stack(
                             fit: StackFit.expand,
                             children: [
-                              Image.memory(
-                                base64.decode(
-                                    naturalDisasterData[index]
-                                        .thumbnail),
+                              CachedMemoryImage(
+                                uniqueKey: 'natural_disaster_${naturalDisasterData[index].id}',
+                                base64: naturalDisasterData[index].thumbnail,
                                 fit: BoxFit.cover,
                               ),
                               Center(
                                 child: Text(
                                   naturalDisasterData[index].name,
                                   style: TextStyle(
-                                    fontSize: 24,
+                                    fontSize: 30.sp,
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                     fontFamily:
-                                    "Montserrat-Regular",
+                                    "Archivo_Expanded-ExtraBold",
                                   ),
                                 ),
                               ),
@@ -256,21 +256,20 @@ class _GuidelinesPageState extends State<GuidelinesPage> {
                           child: Stack(
                             fit: StackFit.expand,
                             children: [
-                              Image.memory(
-                                base64.decode(
-                                    manMadeDisasterData[index]
-                                        .thumbnail),
+                              CachedMemoryImage(
+                                uniqueKey: 'man_made_disaster_${manMadeDisasterData[index].id}',
+                                base64:manMadeDisasterData[index].thumbnail,
                                 fit: BoxFit.cover,
                               ),
                               Center(
                                 child: Text(
                                   manMadeDisasterData[index].name,
                                   style: TextStyle(
-                                    fontSize: 24,
+                                    fontSize: 30.sp,
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                     fontFamily:
-                                    "Montserrat-Regular",
+                                    "Archivo_Expanded-ExtraBold",
                                   ),
                                 ),
                               ),

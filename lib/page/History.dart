@@ -18,7 +18,7 @@ class HistoryRequestCard {
   final residentProfile;
   final image;
   final locationName;
-  final  reportId;
+  final reportId;
 
   HistoryRequestCard({
     required this.id,
@@ -59,6 +59,9 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
 
   late TabController _tabController;
 
+  bool historyDataIsFetching = false;
+
+
   @override
   void initState() {
     super.initState();
@@ -77,7 +80,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
     }
   }
 
-  void removeFromList(String reportId) {
+  void removeFromList(int reportId) {
     // Find the index of the item with the given reportId
     int index = historyData.indexWhere((element) => element.reportId == reportId);
 
@@ -92,7 +95,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
     }
   }
 
-  Future<void> removeDataFromDatabase(String reportId) async {
+  Future<void> removeDataFromDatabase(int reportId) async {
     try {
       var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -145,9 +148,19 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
   }
 
   Future<void> fetchData() async {
+
+    setState(() {
+      historyDataIsFetching = true; // Set to false when fetching data ends
+    });
+
     var connectivityResult = await Connectivity().checkConnectivity();
 
     if (connectivityResult == ConnectivityResult.none) {
+
+      setState(() {
+        historyDataIsFetching = false; // Set to false when fetching data ends
+      });
+
       AwesomeDialog(
         context: context,
         dialogType: DialogType.error,
@@ -192,17 +205,24 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
 
         setState(() {
           historyData = data;
+          historyDataIsFetching = false; // Set to false when fetching data ends
         });
       } else {
         print('Error: ${response.statusCode}');
+        historyDataIsFetching = false; // Set to false when fetching data ends
       }
     } catch (error) {
       print('Error: $error');
-      // Handle other exceptions if needed
+      historyDataIsFetching = false; // Set to false when fetching data ends
     }
   }
 
   Future<void> fetchAcceptedData() async {
+
+    setState(() {
+      historyDataIsFetching = true; // Set to false when fetching data ends
+    });
+
     var connectivityResult = await Connectivity().checkConnectivity();
 
     if (connectivityResult == ConnectivityResult.none) {
@@ -242,12 +262,15 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
         // Assuming historyDataAccepted is a List<HistoryRequestCard> variable
         setState(() {
           historyDataAccepted = data;
+          historyDataIsFetching = false; // Set to false when fetching data ends
         });
       } else {
         print('Error: ${response.statusCode}');
+        historyDataIsFetching = false; // Set to false when fetching data ends
       }
     } catch (error) {
       print('Error: $error');
+      historyDataIsFetching = false; // Set to false when fetching data ends
       // Handle other exceptions if needed
     }
   }
@@ -289,7 +312,9 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
       onRefresh: fetchData,
       child: historyData.isEmpty
           ? Center(
-        child: CircularProgressIndicator(),
+        child: historyDataIsFetching
+            ? CircularProgressIndicator()
+            : Text('No data available'),
       )
           : ListView.builder(
         itemCount: historyData.length,
@@ -315,12 +340,15 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
   }
 
 
+
   Widget buildAcceptedTab() {
     return RefreshIndicator(
       onRefresh: fetchAcceptedData, // Add a method to fetch data for the "Accepted" tab
       child: historyDataAccepted.isEmpty
           ? Center(
-        child: CircularProgressIndicator(),
+          child: historyDataIsFetching
+              ? CircularProgressIndicator()
+              : Text('No data available'),
       )
           : ListView.builder(
         itemCount: historyDataAccepted.length,
