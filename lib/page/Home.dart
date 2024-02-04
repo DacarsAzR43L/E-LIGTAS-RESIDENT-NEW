@@ -103,7 +103,6 @@ class _HomeScreenState extends State<HomeScreen>  with AutomaticKeepAliveClientM
             onPressed: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => ProfileScreen(uid: uid)));
-              print('Babawi ako para sa atin <3 Nandito ako palagi to wait for youu until you are okay <3');
             },
           ),
           IconButton(
