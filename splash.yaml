@@ -3,8 +3,8 @@ flutter_native_splash:
   image: "Assets/e-ligtas.png"
   #background-image: "Assets/splash.png"
   color_dark: "#081B29"
-  background_image_dark: "Assets/splash_dark.png"
-  image_dark: "Assets/splash_dark.png"
+  background_image_dark: "Assets/e-ligtas-dark.png"
+  image_dark: "Assets/e-ligtas-dark.png"
   android_gravity: center
 
 
@@ -13,13 +13,13 @@ flutter_native_splash:
     image: "Assets/e-ligtas.png"
     #background-image: "Assets/splash.png"
     color_dark: "#081B29"
-    background_image_dark: "Assets/splash_dark.png"
-    image_dark: "Assets/splash_dark.png"
+    background_image_dark: "Assets/e-ligtas-dark.png"
+    image_dark: "Assets/e-ligtas-dark.png"
     android_gravity: center
 
     ios_content_mode: center
     color_ios: "#3C6CD8"
-    image_ios: "Assets/e-ligtas.png"
+    image_ios: "Assets/e-ligtas-dark.png"
 
 
   android: true
