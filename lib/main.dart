@@ -4,6 +4,7 @@ import 'package:eligtas_resident/CustomDialog/RegisterSucessDialog.dart';
 import 'package:eligtas_resident/CustomDialog/RequestSuccessDialog.dart';
 import 'package:eligtas_resident/CustomDialog/SetUpSuccessDialog.dart';
 import 'package:eligtas_resident/page/Edit_Profile.dart';
+import 'package:eligtas_resident/page/ForgotPassword.dart';
 import 'package:eligtas_resident/page/History.dart';
 import 'package:eligtas_resident/page/Home.dart';
 import 'package:eligtas_resident/page/Navigation_Pages/Request_Page.dart';
@@ -82,7 +83,7 @@ class _MyAppState extends State<MyApp> {
             debugShowCheckedModeBanner: false,
             title: 'Title',
             theme: ThemeData(primarySwatch: Colors.blue),
-              home: isviewed != 0 ? OnBoardingPage()  : isLoggedIn ==true ? HomeScreen(uid: uid) : FutureBuilder(
+              home: LoginPage(), /*isviewed != 0 ? OnBoardingPage()  : isLoggedIn ==true ? HomeScreen(uid: uid) : FutureBuilder(
                   future: checkUserVerification(), builder: (context, snapshot){
 
     if (snapshot.hasError || snapshot.data == false) {
@@ -91,7 +92,7 @@ class _MyAppState extends State<MyApp> {
     } else {
     // User is logged in and email is verified.
     return HomeScreen(uid: uid,);
-    }})
+    }})*/
           );
         }
 

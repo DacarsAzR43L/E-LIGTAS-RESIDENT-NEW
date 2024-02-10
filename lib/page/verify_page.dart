@@ -13,6 +13,7 @@ class VerifyScreen extends StatefulWidget {
   State<VerifyScreen> createState() => _VerifyScreenState();
 }
 
+
 class _VerifyScreenState extends State<VerifyScreen> {
   int minutes = 0;
   int seconds = 60;
@@ -128,8 +129,8 @@ class _VerifyScreenState extends State<VerifyScreen> {
               onWillPop: () async {
                 return false;
               },
-              child: Container(
-                margin: EdgeInsets.all(5.0.w),
+              child: Padding(
+                padding: EdgeInsets.all(2.w),
                 child: Column(
                   children: [
                     Center(

@@ -5,6 +5,7 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:cached_memory_image/cached_memory_image.dart';
 import 'package:sizer/sizer.dart';
+import 'package:shimmer/shimmer.dart';
 import '../Details.dart';
 
 class Guidelines {
@@ -26,7 +27,10 @@ class GuidelinesPage extends StatefulWidget {
   _GuidelinesPageState createState() => _GuidelinesPageState();
 }
 
-class _GuidelinesPageState extends State<GuidelinesPage> {
+class _GuidelinesPageState extends State<GuidelinesPage> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   List<Guidelines> naturalDisasterData = [];
   List<Guidelines> manMadeDisasterData = [];
   bool isFetchingNaturalDisasters = true;
@@ -93,15 +97,16 @@ class _GuidelinesPageState extends State<GuidelinesPage> {
         // Convert the server response to a list of Guidelines objects
         List<Guidelines> currentFetch = dataList
             ?.asMap()
-            ?.map((index, data) => MapEntry(
-          index,
-          Guidelines(
-            id: data['guidelines_id'].toString(),
-            name: data['guidelines_name'],
-            thumbnail: data['thumbnail'],
-            disasterType: data['disaster_type'],
-          ),
-        ))
+            ?.map((index, data) =>
+            MapEntry(
+              index,
+              Guidelines(
+                id: data['guidelines_id'].toString(),
+                name: data['guidelines_name'],
+                thumbnail: data['thumbnail'],
+                disasterType: data['disaster_type'],
+              ),
+            ))
             ?.values
             ?.toList() ??
             [];
@@ -109,7 +114,8 @@ class _GuidelinesPageState extends State<GuidelinesPage> {
         // Use the currentFetch list as needed
         for (var item in currentFetch) {
           print(
-              "ID: ${item.id} - Name: ${item.name} - Thumbnail: ${item.thumbnail} - Disaster Type: ${item.disasterType}");
+              "ID: ${item.id} - Name: ${item.name} - Thumbnail: ${item
+                  .thumbnail} - Disaster Type: ${item.disasterType}");
         }
 
         // Store the data in the respective list
@@ -137,165 +143,171 @@ class _GuidelinesPageState extends State<GuidelinesPage> {
     }
   }
 
+  Widget shimmerLoadingContainer(double height) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        height: height,
+        color: Colors.white,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: RefreshIndicator(
+          padding: EdgeInsets.only(top: 4.5.h, left: 1.h, right: 1.h),
+          child: isInternetConnected
+              ? RefreshIndicator(
             onRefresh: onRefresh,
-            child: isInternetConnected
-                ? Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Natural Disasters',
-                  style: TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 16),
-                isFetchingNaturalDisasters
-                    ? Expanded(
-                  child: Center(
-                    child: CircularProgressIndicator(),
+            child: Center(
+              child: ListView(
+                children: [
+                  Text(
+                    'Natural Disasters',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                )
-                    : Expanded(
-                  child: Swiper(
-                    loop: false,
-                    itemBuilder:
-                        (BuildContext context, int index) {
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DetailsPage(
-                                id: naturalDisasterData[index]
-                                    .id,
-                                name: naturalDisasterData[index]
-                                    .name,
+                  SizedBox(height: 16),
+                  isFetchingNaturalDisasters
+                      ? shimmerLoadingContainer(
+                      150.0) // Adjust height as needed
+                      : Container(
+                    height: MediaQuery
+                        .of(context)
+                        .size
+                        .height * 0.3,
+                    child: Swiper(
+                      loop: false,
+                      itemBuilder: (BuildContext context, int index) {
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    DetailsPage(
+                                      id: naturalDisasterData[index].id,
+                                      name: naturalDisasterData[index].name,
+                                    ),
                               ),
-                            ),
-                          );
-                        },
-                        child: Card(
-                          margin: EdgeInsets.all(8),
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              CachedMemoryImage(
-                                uniqueKey: 'natural_disaster_${naturalDisasterData[index].id}',
-                                base64: naturalDisasterData[index].thumbnail,
-                                fit: BoxFit.cover,
-                              ),
-                              Center(
-                                child: Text(
-                                  naturalDisasterData[index].name,
-                                  style: TextStyle(
-                                    fontSize: 30.sp,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily:
-                                    "Archivo_Expanded-ExtraBold",
+                            );
+                          },
+                          child: Card(
+                            margin: EdgeInsets.all(8),
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                Image.memory(
+                                  base64Decode(
+                                      naturalDisasterData[index].thumbnail),
+                                  fit: BoxFit.cover,
+                                ),
+                                Center(
+                                  child: Text(
+                                    naturalDisasterData[index].name,
+                                    style: TextStyle(
+                                      fontSize: 30.sp,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "Archivo_Expanded-ExtraBold",
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                    itemCount: naturalDisasterData.length,
-                    viewportFraction: 1.1,
-                    scale: 0.9,
-                    pagination: SwiperPagination(
-                      margin: EdgeInsets.all(10.0),
-                      alignment: Alignment.bottomCenter,
-                    ),
-                    control: SwiperControl(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Man-Made Disasters',
-                  style: TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 16),
-                isFetchingManMadeDisasters
-                    ? Expanded(
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                )
-                    : Expanded(
-                  child: Swiper(
-                    loop: false,
-                    itemBuilder:
-                        (BuildContext context, int index) {
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DetailsPage(
-                                id: manMadeDisasterData[index]
-                                    .id,
-                                name:manMadeDisasterData[index]
-                                    .name,
-                              ),
+                              ],
                             ),
-                          );
-                        },
-                        child: Card(
-                          margin: EdgeInsets.all(8),
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              CachedMemoryImage(
-                                uniqueKey: 'man_made_disaster_${manMadeDisasterData[index].id}',
-                                base64:manMadeDisasterData[index].thumbnail,
-                                fit: BoxFit.cover,
+                          ),
+                        );
+                      },
+                      itemCount: naturalDisasterData.length,
+                      viewportFraction: 1.1,
+                      scale: 0.9,
+                      pagination: SwiperPagination(
+                        margin: EdgeInsets.all(10.0),
+                        alignment: Alignment.bottomCenter,
+                      ),
+                      control: SwiperControl(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 3.h),
+                  Text(
+                    'Man-Made Disasters',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 16),
+                  isFetchingManMadeDisasters
+                      ? shimmerLoadingContainer(
+                      150.0) // Adjust height as needed
+                      : Container(
+                    height: MediaQuery
+                        .of(context)
+                        .size
+                        .height * 0.3,
+                    child: Swiper(
+                      loop: false,
+                      itemBuilder: (BuildContext context, int index) {
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    DetailsPage(
+                                      id: manMadeDisasterData[index].id,
+                                      name: manMadeDisasterData[index].name,
+                                    ),
                               ),
-                              Center(
-                                child: Text(
-                                  manMadeDisasterData[index].name,
-                                  style: TextStyle(
-                                    fontSize: 30.sp,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily:
-                                    "Archivo_Expanded-ExtraBold",
+                            );
+                          },
+                          child: Card(
+                            margin: EdgeInsets.all(8),
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                Image.memory(
+                                  base64Decode(
+                                      manMadeDisasterData[index].thumbnail),
+                                  fit: BoxFit.cover,
+                                ),
+                                Center(
+                                  child: Text(
+                                    manMadeDisasterData[index].name,
+                                    style: TextStyle(
+                                      fontSize: 30.sp,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "Archivo_Expanded-ExtraBold",
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    itemCount: manMadeDisasterData.length,
-                    viewportFraction: 1.1,
-                    scale: 0.9,
-                    pagination: SwiperPagination(
-                      margin: EdgeInsets.all(10.0),
-                      alignment: Alignment.bottomCenter,
+                        );
+                      },
+                      itemCount: manMadeDisasterData.length,
+                      viewportFraction: 1.1,
+                      scale: 0.9,
+                      pagination: SwiperPagination(
+                        margin: EdgeInsets.all(10.0),
+                        alignment: Alignment.bottomCenter,
+                      ),
+                      control: SwiperControl(
+                        color: Colors.white,
+                      ),
+                      autoplay: false,
                     ),
-                    control: SwiperControl(
-                      color: Colors.white,
-                    ),
-                    autoplay: false,
                   ),
-                ),
-              ],
-            )
-                : Center(
-              child: Text('No Internet Connection'),
+                ],
+              ),
             ),
+          )
+              : Center(
+            child: Text('No Internet Connection'),
           ),
         ),
       ),

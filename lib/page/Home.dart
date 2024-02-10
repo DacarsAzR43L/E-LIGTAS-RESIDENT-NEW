@@ -20,8 +20,6 @@ class HomeScreen extends StatefulWidget {
   String? uid = FirebaseAuth.instance.currentUser?.uid;
 
 
-
-
   HomeScreen({required this.uid});
 
   @override
@@ -29,11 +27,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 
-
-
-
 class _HomeScreenState extends State<HomeScreen>  with AutomaticKeepAliveClientMixin {
 
+  //Firebase Credentials
   final auth = FirebaseAuth.instance;
   User? user;
   String? uid = FirebaseAuth.instance.currentUser?.uid;
@@ -110,7 +106,6 @@ class _HomeScreenState extends State<HomeScreen>  with AutomaticKeepAliveClientM
             onPressed: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => SettingsPage(uid: uid)));
-              print('Settings icon pressed');
             },
           ),
         ],

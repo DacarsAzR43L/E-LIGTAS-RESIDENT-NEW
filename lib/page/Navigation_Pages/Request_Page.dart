@@ -331,11 +331,6 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
     }
   }
 
-
-
-
-
-
   Future<void> uploadImage() async {
     // Check for internet connectivity
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -409,6 +404,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
         }
       }
     } catch (error) {
+      Navigator.of(context).pop();
       print('Error: $error');
       // Handle the error as needed
       showDialog(
@@ -430,7 +426,6 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
       );
     }
   }
-
 
   Widget _buildButton(int buttonIndex, String label, IconData icon, Color color)
   {
@@ -566,7 +561,6 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                             onPressed: () {
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (context) => History(uid: uid)));
-                              print('Settings icon pressed');
                             },
                             style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all(Colors.white),

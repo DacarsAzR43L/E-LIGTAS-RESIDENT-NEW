@@ -49,6 +49,8 @@ class History extends StatefulWidget {
 }
 
 class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
+
+
   final auth = FirebaseAuth.instance;
   User? user;
   String? uid = FirebaseAuth.instance.currentUser?.uid;
@@ -56,6 +58,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
   int expandedCardIndex = -1;
   List<HistoryRequestCard> historyData = [];
   List<HistoryRequestCard> historyDataAccepted = [];
+  List<HistoryRequestCard> historyDataArchive = [];
 
   late TabController _tabController;
 
@@ -65,20 +68,27 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_handleTabSelection);
 
     // Fetch data when the widget is initialized
     fetchData();
     fetchAcceptedData();
+    fetchArchivedData();
   }
 
   void _handleTabSelection() {
-    if (_tabController.indexIsChanging && _tabController.index == 0) {
-      // Fetch data when the 'Pending' tab is selected
-      fetchData();
+    if (_tabController.indexIsChanging) {
+      if (_tabController.index == 0) {
+        fetchData();
+      } else if (_tabController.index == 1) {
+        fetchAcceptedData();
+      } else if (_tabController.index == 2) {
+        fetchArchivedData();
+      }
     }
   }
+
 
   void removeFromList(int reportId) {
     // Find the index of the item with the given reportId
@@ -209,11 +219,18 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
         });
       } else {
         print('Error: ${response.statusCode}');
-        historyDataIsFetching = false; // Set to false when fetching data ends
+        setState(() {
+          historyData = [];
+          historyDataIsFetching = false; // Set to false when fetching data ends
+        });
+
       }
     } catch (error) {
       print('Error: $error');
-      historyDataIsFetching = false; // Set to false when fetching data ends
+      setState(() {
+        historyData=[];
+        historyDataIsFetching = false; // Set to false when fetching data ends
+      });
     }
   }
 
@@ -266,14 +283,77 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
         });
       } else {
         print('Error: ${response.statusCode}');
-        historyDataIsFetching = false; // Set to false when fetching data ends
+        setState(() {
+          historyDataAccepted=[];
+          historyDataIsFetching = false; // Set to false when fetching data ends
+        });
+
       }
     } catch (error) {
       print('Error: $error');
-      historyDataIsFetching = false; // Set to false when fetching data ends
-      // Handle other exceptions if needed
+      setState(() {
+        historyDataAccepted=[];
+        historyDataIsFetching = false; // Set to false when fetching data ends
+      });
     }
   }
+
+
+  Future<void> fetchArchivedData() async {
+    // Fetch archived data using a similar approach as fetchPendingData and fetchAcceptedData
+    // Update the API endpoint and response parsing accordingly
+
+    // Example:
+
+    try {
+      final String apiUrl = 'https://eligtas.site/public/storage/get_archived_history.php?uid=${widget.uid}';
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        List<HistoryRequestCard> data = jsonData
+            .asMap()
+            .map((index, item) => MapEntry(
+          index,
+          HistoryRequestCard(
+            id: index,
+            name: item['resident_name'],
+            emergencyType: item['emergency_type'],
+            date: item['dateandTime'],
+            locationName: item['locationName'],
+            locationLink: item['locationLink'],
+            phoneNumber: item['phoneNumber'],
+            message: item['message'],
+            residentProfile: item['residentProfile'],
+            image: item['imageEvidence'],
+            reportId: item['report_id'],
+          ),
+        ))
+            .values
+            .toList();
+
+        setState(() {
+          historyDataArchive = data;
+          historyDataIsFetching = false;
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+        setState(() {
+          historyDataArchive = [];
+          historyDataIsFetching = false;
+        });
+      }
+    } catch (error) {
+      print('Error: $error');
+      setState(() {
+        historyDataArchive = [];
+        historyDataIsFetching = false;
+      });
+    }
+
+  }
+
+
 
   @override
   void dispose() {
@@ -283,8 +363,9 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           title: Text('History'),
@@ -293,6 +374,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
             tabs: [
               Tab(text: 'Pending'),
               Tab(text: 'Accepted'),
+              Tab(text: 'Archive'),
             ],
           ),
         ),
@@ -300,9 +382,42 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
           controller: _tabController,
           children: [
             buildPendingTab(),
-            buildAcceptedTab()
+            buildAcceptedTab(),
+            buildArchivedTab(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget buildArchivedTab() {
+    return RefreshIndicator(
+      onRefresh: fetchArchivedData,
+      child: historyDataArchive.isEmpty
+          ? Center(
+        child: historyDataIsFetching
+            ? CircularProgressIndicator()
+            : Text('No archived data available'),
+      )
+          : ListView.builder(
+        itemCount: historyDataArchive.length,
+        itemBuilder: (BuildContext context, int index) {
+          HistoryRequestCard card = historyDataArchive[index];
+          return buildCard(
+            index,
+            card.emergencyType,
+            card.date,
+            showButtons: false,
+            name: card.name,
+            residentProfile: card.residentProfile,
+            locationName: card.locationName,
+            locationLink: card.locationLink,
+            phoneNumber: card.phoneNumber,
+            message: card.message,
+            image: card.image,
+            report_id: card.reportId,
+          );
+        },
       ),
     );
   }
@@ -397,11 +512,11 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
         });
       },
       child: Padding(
-        padding:  EdgeInsets.all(5.w),
+        padding: EdgeInsets.fromLTRB(2.h, 2.h,2.h, 0.h),
         child: Card(
           elevation: 5,
           child: Padding(
-            padding:  EdgeInsets.all(4.w),
+            padding: EdgeInsets.all(2.w), // Adjusted padding here
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -413,7 +528,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
                           ? Image.memory(base64Decode(residentProfile)).image
                           : AssetImage('path/to/placeholder_image.png'),
                     ),
-                    SizedBox(width: 16),
+                    SizedBox(width: 12), // Adjusted width here
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -425,14 +540,16 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
                           ),
                         ),
                         Text('Emergency type: $emergencyType'),
-                        Text('Date: $date',style: TextStyle(
-                          fontSize: 9.sp,
-                        ),),
+                        Text(
+                          'Date: $date',
+                          style: TextStyle(
+                            fontSize: 9.sp,
+                          ),
+                        ),
                       ],
                     ),
                   ],
                 ),
-                SizedBox(height: 16),
                 if (isPendingTab)
                   Text(
                     'If no respond within 5 minutes, try to call in the nearest barangay! Please visit Hotlines Tab',
@@ -441,10 +558,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-
-                if(isPendingTab)
-                SizedBox(height: 16),
-
+                if (isPendingTab) SizedBox(height: 8), // Adjusted height here
                 if (isPendingTab)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -489,11 +603,11 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
                     ],
                   ),
                 Container(
-                  width: isPendingTab ? 500 : 300, // Adjust the width based on the tab
+                  width: isPendingTab ? 500 : 300, // Adjusted width here
                   child: Visibility(
                     visible: expandedCardIndex == index,
                     child: Padding(
-                      padding: EdgeInsets.all(16.0),
+                      padding: EdgeInsets.all(8.0), // Adjusted padding here
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,

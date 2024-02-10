@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:shimmer/shimmer.dart';
 
 class Hotlines_Page extends StatefulWidget {
   @override
@@ -58,7 +59,6 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
     await _database.delete('hotlines');
   }
 
-
   Future<void> fetchDataAndInit() async {
     try {
       _database = await initDatabase();
@@ -98,26 +98,32 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
   }
 
   Future<void> _refresh() async {
-
     await Future.delayed(Duration(seconds: 2));
     fetchDataAndInit();
-
   }
 
-
-
-
-
-
   Future<List<dynamic>> fetchData() async {
-    final response =
-    await http.get(Uri.parse('https://eligtas.site/public/storage/retrieve_hotlines.php'));
+    final response = await http.get(
+        Uri.parse('https://eligtas.site/public/storage/retrieve_hotlines.php'));
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Failed to load data. Error code: ${response.statusCode}');
+      throw Exception(
+          'Failed to load data. Error code: ${response.statusCode}');
     }
+  }
+
+  void filterData(String query) {
+    setState(() {
+      displayedData = originalData
+          .where((item) =>
+      item['userfrom']
+          .toLowerCase()
+          .contains(query.toLowerCase()) ||
+          item['hotlines_number'].contains(query))
+          .toList();
+    });
   }
 
   @override
@@ -128,19 +134,9 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
     fetchDataAndInit();
   }
 
-  void filterData(String query) {
-    setState(() {
-      displayedData = originalData
-          .where((item) =>
-      item['userfrom'].toLowerCase().contains(query.toLowerCase()) ||
-          item['hotlines_number'].contains(query))
-          .toList();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height*0.8;
+    double screenHeight = MediaQuery.of(context).size.height * 0.8;
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: RefreshIndicator(
@@ -148,7 +144,7 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
         child: SingleChildScrollView(
           child: SafeArea(
             child: Padding(
-              padding: EdgeInsets.fromLTRB(0.h,1.h,0.h,2.h),
+              padding: EdgeInsets.fromLTRB(0.h, 1.h, 0.h, 2.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -181,7 +177,6 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
                     ),
                   ),
                   SizedBox(height: 1.0.h),
-
                   Container(
                     height: 68.0.h,
                     width: 98.w,
@@ -195,7 +190,14 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
                       borderRadius: BorderRadius.circular(15.0),
                     ),
                     child: isLoading
-                        ? Center(child: CircularProgressIndicator())
+                        ? Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: ListView.builder(
+                        itemCount: 5,
+                        itemBuilder: (_, __) => ShimmerItem(),
+                      ),
+                    )
                         : displayedData.isEmpty
                         ? Center(
                       child: Text('No items found'),
@@ -223,8 +225,10 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
                               style: TextStyle(fontSize: 12.0.sp),
                             ),
                             trailing: IconButton(
-                              icon: Icon(Icons.call,
-                                  color: Colors.lightGreen),
+                              icon: Icon(
+                                Icons.call,
+                                color: Colors.lightGreen,
+                              ),
                               onPressed: () async {
                                 launch(
                                     'tel://+${displayedData[index]['hotlines_number']}');
@@ -239,6 +243,32 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class ShimmerItem extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Container(
+          height: 14.0.sp,
+          width: 50.0.w,
+          color: Colors.white,
+        ),
+      ),
+      subtitle: Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Container(
+          height: 12.0.sp,
+          width: 40.0.w,
+          color: Colors.white,
         ),
       ),
     );

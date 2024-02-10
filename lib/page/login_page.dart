@@ -10,6 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 import 'package:eligtas_resident/CustomDialog/LoginSuccessDialog.dart';
 
+import 'ForgotPassword.dart';
+
 class LoginPage extends StatefulWidget {
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -264,6 +266,29 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ],
                   ),
+                ),
+              ),
+              SizedBox(height: 1.0.h),
+              Padding(
+                padding: EdgeInsets.only(left: 5.w),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children:[
+                    InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
+                      );
+                    },
+                    child: Text(
+                      'Forgot Password?',
+                      style: TextStyle(
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ),],
                 ),
               ),
               SizedBox(height: 3.h,),
