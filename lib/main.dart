@@ -83,7 +83,7 @@ class _MyAppState extends State<MyApp> {
             debugShowCheckedModeBanner: false,
             title: 'Title',
             theme: ThemeData(primarySwatch: Colors.blue),
-              home: LoginPage(), /*isviewed != 0 ? OnBoardingPage()  : isLoggedIn ==true ? HomeScreen(uid: uid) : FutureBuilder(
+              home: isviewed != 0 ? OnBoardingPage()  : isLoggedIn ==true ? HomeScreen(uid: uid) : FutureBuilder(
                   future: checkUserVerification(), builder: (context, snapshot){
 
     if (snapshot.hasError || snapshot.data == false) {
@@ -92,7 +92,7 @@ class _MyAppState extends State<MyApp> {
     } else {
     // User is logged in and email is verified.
     return HomeScreen(uid: uid,);
-    }})*/
+    }})
           );
         }
 
