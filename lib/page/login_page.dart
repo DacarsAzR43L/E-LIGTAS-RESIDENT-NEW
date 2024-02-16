@@ -89,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
         },
       );
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'INVALID_LOGIN_CREDENTIALS') {
+      if (e.message == 'The supplied auth credential is incorrect, malformed or has expired.') {
         // Handle the case when the password is incorrect.
         Navigator.of(context).pop();
 
@@ -115,6 +115,7 @@ class _LoginPageState extends State<LoginPage> {
           dismissOnTouchOutside: false,
           btnOkOnPress: () {},
         )..show();
+        print (e.message);
       }
     }
   }

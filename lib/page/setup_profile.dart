@@ -550,9 +550,6 @@ late PermissionStatus statusCamera;
                               checkPhoneNumber(mergePhoneNumber);
                             } else if (_formField.currentState!.validate() &&
                                 _imageFile == null) {
-                              _nameController.clear();
-                              _phoneController.clear();
-                              _addressController.clear();
 
                               AwesomeDialog(
                                 context: context,
