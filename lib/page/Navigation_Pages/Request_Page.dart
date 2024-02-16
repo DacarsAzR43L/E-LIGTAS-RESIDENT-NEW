@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io'as io;
 import 'dart:typed_data';
@@ -9,6 +10,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:http/http.dart' as http;
@@ -78,10 +80,16 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
   late String? _imageName =null;
   late String? _imageData =null;
 
+  bool isButtonDisabled = false;
+  int countdownDuration = 180; // 30 minutes in seconds
+  late Timer countdownTimer;
+
 
   void initState() {
     super.initState();
     fetchData();
+    loadButtonState();
+    loadCountdownDuration();
   }
 
   @override
@@ -400,7 +408,14 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
             descriptionController.clear();
             _selectedButton = 4;
             _imageFile = null;
+            isButtonDisabled = true;
           });
+
+          // Save the isButtonDisabled state to SharedPreferences
+          saveButtonState();
+
+          // Start the countdown
+          startCountdown();
         }
       }
     } catch (error) {
@@ -426,6 +441,70 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
       );
     }
   }
+
+  void startCountdown() {
+    countdownTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        countdownDuration--;
+
+        // Save the countdown duration to SharedPreferences
+        saveCountdownDuration();
+
+        if (countdownDuration <= 0) {
+          // Enable the button when the countdown reaches zero
+          isButtonDisabled = false;
+          timer.cancel(); // Stop the timer
+
+          saveButtonState();
+        }
+      });
+    });
+  }
+
+  // Load the isButtonDisabled state from SharedPreferences
+  Future<void> loadButtonState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedButtonState = prefs.getBool('isButtonDisabled');
+
+    if (savedButtonState != null) {
+      setState(() {
+        isButtonDisabled = savedButtonState;
+        startCountdown();
+      });
+    }
+  }
+
+  // Save the isButtonDisabled state to SharedPreferences
+  Future<void> saveButtonState() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isButtonDisabled', isButtonDisabled);
+
+  }
+
+  String _formatCountdown() {
+    int minutes = (countdownDuration / 60).floor();
+    int seconds = countdownDuration % 60;
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  // Load the countdown duration from SharedPreferences
+  Future<void> loadCountdownDuration() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedCountdownDuration = prefs.getInt('countdownDuration');
+
+    if (savedCountdownDuration != null) {
+      setState(() {
+        countdownDuration = savedCountdownDuration;
+      });
+    }
+  }
+
+  // Save the countdown duration to SharedPreferences
+  Future<void> saveCountdownDuration() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt('countdownDuration', countdownDuration);
+  }
+
 
   Widget _buildButton(int buttonIndex, String label, IconData icon, Color color)
   {
@@ -527,6 +606,9 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
 
       ));
   }
+
+
+
 
 
   @override
@@ -888,65 +970,80 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                         SizedBox(
                           width: 290.0,
                           height: 50.0 ,
-                          child: TextButton(onPressed: (){
-                
-                            if (_formField.currentState!.validate() && _selectedButton <4 && _imageFile !=null &&  _currentPosition != null
-                                && userInfo['name'] !=null) {
-                
-                
-                              Description = descriptionController.text;
-                
-                              name = userInfo['name'];
-                              residentProfile = userInfo['image'];
-                              phoneNumber = int.parse(userInfo['phoneNumber']);
-                              finalNumber =phoneNumber.toString();
-                
-                              Uri myLink = Uri.parse("https://www.google.com/maps/search/?api=1&query=$latitude,$longitude");
-                              locationLink = myLink.toString();
-                
-                              AwesomeDialog(
-                                context: context,
-                                dialogType: DialogType.warning,
-                                animType: AnimType.rightSlide,
-                                btnOkColor: Color.fromRGBO(51, 71, 246, 1),
-                                title: "Confirm Information",
-                                desc: 'Are you sure that the information is accurate?',
-                                btnCancelOnPress: () {},
-                                btnOkOnPress: () {
-                                  uploadImage();
-                                },
-                                dismissOnTouchOutside: false,
-                              )..show();
-                
-                            }
-                
-                            else{
-                              AwesomeDialog(
-                                context: context,
-                                dialogType: DialogType.warning,
-                                animType: AnimType.rightSlide,
-                                title: 'Warning!',
-                                btnOkColor: Color.fromRGBO(51, 71, 246, 1),
-                                desc: 'All Fields are Required',
-                                btnOkOnPress: () {},
-                              )..show();
-                            }
-                          },
-                              child: Text('Submit Report',
-                                style: TextStyle(
-                                  fontFamily: 'Montserrat-Regular',
-                                  fontSize:24.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),),
-                              style: ButtonStyle(
-                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    side: BorderSide(color: Color.fromRGBO(51, 71, 246, 1)),
-                                  ),),
-                                backgroundColor: MaterialStatePropertyAll<Color>(Color.fromRGBO(51, 71, 246, 1)),
-                              )),
+                          child: TextButton(
+                              onPressed: () {
+
+                                if (isButtonDisabled) {
+                                  return null;
+                                }
+
+                                if (_formField.currentState!.validate() &&
+                                    _selectedButton < 4 && _imageFile != null &&
+                                    _currentPosition != null
+                                    && userInfo['name'] != null) {
+                                  Description = descriptionController.text;
+
+                                  name = userInfo['name'];
+                                  residentProfile = userInfo['image'];
+                                  phoneNumber =
+                                      int.parse(userInfo['phoneNumber']);
+                                  finalNumber = phoneNumber.toString();
+
+                                  Uri myLink = Uri.parse(
+                                      "https://www.google.com/maps/search/?api=1&query=$latitude,$longitude");
+                                  locationLink = myLink.toString();
+
+                                  AwesomeDialog(
+                                    context: context,
+                                    dialogType: DialogType.warning,
+                                    animType: AnimType.rightSlide,
+                                    btnOkColor: Color.fromRGBO(51, 71, 246, 1),
+                                    title: "Confirm Information",
+                                    desc: 'Are you sure that the information is accurate?',
+                                    btnCancelOnPress: () {},
+                                    btnOkOnPress: () {
+                                      uploadImage();
+                                    },
+                                    dismissOnTouchOutside: false,
+                                  )
+                                    ..show();
+                                }
+
+                                else {
+                                  AwesomeDialog(
+                                    context: context,
+                                    dialogType: DialogType.warning,
+                                    animType: AnimType.rightSlide,
+                                    title: 'Warning!',
+                                    btnOkColor: Color.fromRGBO(51, 71, 246, 1),
+                                    desc: 'All Fields are Required',
+                                    btnOkOnPress: () {},
+                                  )
+                                    ..show();
+                                }
+                              },
+                            child: Text(
+                              isButtonDisabled
+                                  ? 'Countdown: ${_formatCountdown()}'
+                                  : 'Submit Report',
+                              style: TextStyle(
+                                fontFamily: 'Montserrat-Regular',
+                                fontSize: 24.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            style: ButtonStyle(
+                              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  side: BorderSide(color: Color.fromRGBO(51, 71, 246, 1)),
+                                ),
+                              ),
+                              backgroundColor: MaterialStatePropertyAll<Color>(
+                                  Color.fromRGBO(51, 71, 246, 1)),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -958,11 +1055,12 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
           ),
         ),
       );
-    } 
-    
-
     }
-  
+
+}
+
+
+
 
 
 
