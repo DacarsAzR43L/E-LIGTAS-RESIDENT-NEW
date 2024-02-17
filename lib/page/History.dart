@@ -3,6 +3,7 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -37,12 +38,14 @@ class HistoryRequestCard {
 
 class History extends StatefulWidget {
 
+
+
+  History({required this.uid});
+
   final auth = FirebaseAuth.instance;
   User? user;
   String? uid = FirebaseAuth.instance.currentUser?.uid;
 
-
-  History({required this.uid});
 
   @override
   State<History> createState() => _HistoryState();
@@ -51,6 +54,7 @@ class History extends StatefulWidget {
 class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
 
 
+  late Function(bool) updateButtonState;
   final auth = FirebaseAuth.instance;
   User? user;
   String? uid = FirebaseAuth.instance.currentUser?.uid;
@@ -213,14 +217,18 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
             .values
             .toList();
 
-        setState(() {
+        setState(() async {
           historyData = data;
-          historyDataIsFetching = false; // Set to false when fetching data ends
+          historyDataIsFetching = false;
+          final prefs = await SharedPreferences.getInstance();
+          prefs.setBool('isButtonDisabled', false);// Set to false when fetching data ends
         });
       } else {
         print('Error: ${response.statusCode}');
-        setState(() {
+        setState(() async {
           historyData = [];
+          final prefs = await SharedPreferences.getInstance();
+          prefs.setBool('isButtonDisabled', false);
           historyDataIsFetching = false; // Set to false when fetching data ends
         });
 
@@ -550,9 +558,11 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
                     ),
                   ],
                 ),
+
+                SizedBox(height: 1.h,),
                 if (isPendingTab)
                   Text(
-                    'If no respond within 5 minutes, try to call in the nearest barangay! Please visit Hotlines Tab',
+                    'If no respond within 5 minutes, try to call in the nearest barangay! Please visit Hotlines Tab\n DO NOT SPAM REPORTS',
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -573,7 +583,11 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
                             title: "Confirm Information",
                             desc: 'Are you sure to delete the report?',
                             btnCancelOnPress: () {},
-                            btnOkOnPress: () {
+                            btnOkOnPress: ()  async {
+
+                              final prefs = await SharedPreferences.getInstance();
+                              prefs.setBool('isButtonDisabled', false);
+
                               removeFromList(report_id);
                             },
                             dismissOnTouchOutside: false,

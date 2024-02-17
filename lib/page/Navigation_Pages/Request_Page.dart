@@ -81,7 +81,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
   late String? _imageData =null;
 
   bool isButtonDisabled = false;
-  int countdownDuration = 180; // 30 minutes in seconds
+  int countdownDuration = 120; // 30 minutes in seconds
   late Timer countdownTimer;
 
 
@@ -90,6 +90,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
     fetchData();
     loadButtonState();
     loadCountdownDuration();
+    checkIsButtonDisabled(); // Check isButtonDisabled on initialization
   }
 
   @override
@@ -399,7 +400,15 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
             btnOkColor: Color.fromRGBO(51, 71, 246, 1),
             title: 'Success',
             desc: 'Report Sent Successfully! ',
-            btnOkOnPress: () {},
+            btnOkOnPress: () {
+              // Show Snackbar
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Please do not terminate the app on the background while it is on countdown. You can minimize it to the background.'),
+                  duration: Duration(seconds: 6),
+                ),
+              );
+            },
             dismissOnTouchOutside: false,
           )..show();
           print('Image uploaded successfully!');
@@ -412,7 +421,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
           });
 
           // Save the isButtonDisabled state to SharedPreferences
-          saveButtonState();
+          saveButtonState(isButtonDisabled);
 
           // Start the countdown
           startCountdown();
@@ -442,7 +451,25 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
     }
   }
 
+
+  // Add this function to check isButtonDisabled in SharedPreferences
+  Future<void> checkIsButtonDisabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedButtonState = prefs.getBool('isButtonDisabled');
+
+    if (savedButtonState != null) {
+      setState(() {
+        isButtonDisabled = savedButtonState;
+      });
+    }
+  }
+
+
+
   void startCountdown() {
+
+
+
     countdownTimer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
         countdownDuration--;
@@ -451,15 +478,20 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
         saveCountdownDuration();
 
         if (countdownDuration <= 0) {
+          // Reset countdown to 2 minutes and save it
+          countdownDuration = 120;
+          saveCountdownDuration();
+
           // Enable the button when the countdown reaches zero
           isButtonDisabled = false;
-          timer.cancel(); // Stop the timer
+          countdownTimer.cancel(); // Stop the timer
 
-          saveButtonState();
+          saveButtonState(isButtonDisabled);
         }
       });
     });
   }
+
 
   // Load the isButtonDisabled state from SharedPreferences
   Future<void> loadButtonState() async {
@@ -469,17 +501,20 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
     if (savedButtonState != null) {
       setState(() {
         isButtonDisabled = savedButtonState;
-        startCountdown();
       });
     }
   }
 
-  // Save the isButtonDisabled state to SharedPreferences
-  Future<void> saveButtonState() async {
+  // Update saveButtonState to handle both saving and loading
+  Future<void> saveButtonState(bool value) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setBool('isButtonDisabled', isButtonDisabled);
+    prefs.setBool('isButtonDisabled', value);
 
+    setState(() {
+      isButtonDisabled = value;
+    });
   }
+
 
   String _formatCountdown() {
     int minutes = (countdownDuration / 60).floor();
@@ -504,6 +539,8 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
     final prefs = await SharedPreferences.getInstance();
     prefs.setInt('countdownDuration', countdownDuration);
   }
+
+
 
 
   Widget _buildButton(int buttonIndex, String label, IconData icon, Color color)
@@ -1024,7 +1061,8 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                               },
                             child: Text(
                               isButtonDisabled
-                                  ? 'Countdown: ${_formatCountdown()}'
+                                  ? //'Countdown: ${_formatCountdown()}'
+                              'Button Disabled'
                                   : 'Submit Report',
                               style: TextStyle(
                                 fontFamily: 'Montserrat-Regular',
@@ -1058,7 +1096,10 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
     }
 
 }
-
+Future<bool> getButtonDisabled() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getBool('isButtonDisabled') ?? false;
+}
 
 
 
