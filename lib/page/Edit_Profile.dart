@@ -4,6 +4,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io' as io;
@@ -677,7 +678,7 @@ class _Edit_ProfileScreenState extends State<Edit_ProfileScreen> {
                         keyboardType: TextInputType.number,
                         controller: _phoneController,
                         maxLength: 10,
-                        maxLengthEnforcement:null ,
+                        maxLengthEnforcement: MaxLengthEnforcement.enforced, // enforce maximum length
                         decoration: InputDecoration(
                           prefixIcon: Padding(
                             padding: EdgeInsets.symmetric(horizontal: 13.0, vertical: 18.0),
@@ -696,8 +697,12 @@ class _Edit_ProfileScreenState extends State<Edit_ProfileScreen> {
                           ),
                         ),
                         validator: (value) {
-                          if(value!.isEmpty) {
+                          if (value == null || value.isEmpty) {
                             return "Enter Phone Number";
+                          } else if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                            return "Only numbers are allowed";
+                          } else if (value.length < 10) {
+                            return "Number must be at least 10 digits long";
                           }
                           return null;
                         },

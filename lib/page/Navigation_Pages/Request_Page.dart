@@ -75,22 +75,21 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
   late PermissionStatus statusCamera;
 
 //Picked Profile
-
   late io.File? _imageFile =null;
   late String? _imageName =null;
   late String? _imageData =null;
 
   bool isButtonDisabled = false;
-  int countdownDuration = 120; // 30 minutes in seconds
+  int countdownDuration = 30; // 30 minutes in seconds
   late Timer countdownTimer;
+
+  //Selected Barangay
+  String? selectedBarangay = "NONE";
 
 
   void initState() {
     super.initState();
     fetchData();
-    loadButtonState();
-    loadCountdownDuration();
-    checkIsButtonDisabled(); // Check isButtonDisabled on initialization
   }
 
   @override
@@ -119,6 +118,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
     _selectedButton =4;
     descriptionController.clear();
     _imageFile = null;
+    selectedBarangay = 'NONE';
 
   }
 
@@ -369,6 +369,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
         'locationName': _currentAddress,
         'locationLink': locationLink,
         'phoneNumber': finalNumber,
+        'BarangayName': selectedBarangay,
         'message': Description,
         'imageEvidence': await MultipartFile.fromFile(_imageFile!.path, filename: 'image.webp'),
         'residentProfile': residentProfile,
@@ -404,8 +405,8 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
               // Show Snackbar
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Please do not terminate the app on the background while it is on countdown. You can minimize it to the background.'),
-                  duration: Duration(seconds: 6),
+                  content: Text('Please visit History Tab to check your report.\nONE REPORT ONLY PER EMERGENCY! DO NOT SPAM!'),
+                  duration: Duration(seconds: 10),
                 ),
               );
             },
@@ -417,14 +418,8 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
             descriptionController.clear();
             _selectedButton = 4;
             _imageFile = null;
-            isButtonDisabled = true;
           });
 
-          // Save the isButtonDisabled state to SharedPreferences
-          saveButtonState(isButtonDisabled);
-
-          // Start the countdown
-          startCountdown();
         }
       }
     } catch (error) {
@@ -450,97 +445,6 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
       );
     }
   }
-
-
-  // Add this function to check isButtonDisabled in SharedPreferences
-  Future<void> checkIsButtonDisabled() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedButtonState = prefs.getBool('isButtonDisabled');
-
-    if (savedButtonState != null) {
-      setState(() {
-        isButtonDisabled = savedButtonState;
-      });
-    }
-  }
-
-
-
-  void startCountdown() {
-
-
-
-    countdownTimer = Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        countdownDuration--;
-
-        // Save the countdown duration to SharedPreferences
-        saveCountdownDuration();
-
-        if (countdownDuration <= 0) {
-          // Reset countdown to 2 minutes and save it
-          countdownDuration = 120;
-          saveCountdownDuration();
-
-          // Enable the button when the countdown reaches zero
-          isButtonDisabled = false;
-          countdownTimer.cancel(); // Stop the timer
-
-          saveButtonState(isButtonDisabled);
-        }
-      });
-    });
-  }
-
-
-  // Load the isButtonDisabled state from SharedPreferences
-  Future<void> loadButtonState() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedButtonState = prefs.getBool('isButtonDisabled');
-
-    if (savedButtonState != null) {
-      setState(() {
-        isButtonDisabled = savedButtonState;
-      });
-    }
-  }
-
-  // Update saveButtonState to handle both saving and loading
-  Future<void> saveButtonState(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setBool('isButtonDisabled', value);
-
-    setState(() {
-      isButtonDisabled = value;
-    });
-  }
-
-
-  String _formatCountdown() {
-    int minutes = (countdownDuration / 60).floor();
-    int seconds = countdownDuration % 60;
-    return '$minutes:${seconds.toString().padLeft(2, '0')}';
-  }
-
-  // Load the countdown duration from SharedPreferences
-  Future<void> loadCountdownDuration() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedCountdownDuration = prefs.getInt('countdownDuration');
-
-    if (savedCountdownDuration != null) {
-      setState(() {
-        countdownDuration = savedCountdownDuration;
-      });
-    }
-  }
-
-  // Save the countdown duration to SharedPreferences
-  Future<void> saveCountdownDuration() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setInt('countdownDuration', countdownDuration);
-  }
-
-
 
 
   Widget _buildButton(int buttonIndex, String label, IconData icon, Color color)
@@ -663,7 +567,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                
+
                     Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -674,8 +578,8 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                               fontFamily: "Montserrat-Bold",
                             ),
                           ),
-                
-                
+
+
                           TextButton.icon(
                             onPressed: () {
                               Navigator.push(context,
@@ -696,12 +600,12 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                                 fontFamily: "Montserrat-Bold",
                               ),
                             ),),
-                
+
                         ]
                     ),
-                
+
                     SizedBox(height: 1.0,),
-                
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -714,7 +618,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                             fontFamily: "Montserrat-Regular",
                           ),
                         ),
-                
+
                         Text('${userInfo['name']?? 'Not Available'}',
                           style: TextStyle(
                             fontSize: 15.0,
@@ -724,10 +628,10 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                         ),
                       ],
                     ),
-                
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
-                
+
                       children: [
                         Text('Location: ',
                           style: TextStyle(
@@ -737,7 +641,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                             fontFamily: "Montserrat-Regular",
                           ),
                         ),
-                
+
                         Container(
                           width: 40.w,
                           // decoration: BoxDecoration(
@@ -758,10 +662,10 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                               : Text('Location has not fetched yet', maxLines: 1,
                             overflow: TextOverflow.ellipsis,),
                         ),
-                
-                
+
+
                         SizedBox(width:1.0),
-                
+
                         TextButton.icon(
                           onPressed: () {
                             _loading ? null : _checkLocationServiceAndGetCurrentLocation();
@@ -778,11 +682,11 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                             ),
                           ),
                         ),
-                
-                
+
+
                       ],
                     ),
-                
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -795,7 +699,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                             fontFamily: "Montserrat-Regular",
                           ),
                         ),
-                
+
                         Text('+${userInfo['phoneNumber']?? 'Not Available'}',
                           style: TextStyle(
                             fontSize: 15.0,
@@ -803,14 +707,51 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                             fontFamily: "Montserrat-Regular",
                           ),
                         ),
-                
+
                       ],
                     ),
-                
-                
-                    SizedBox(height: 20.0,),
-                
-                
+
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text('Select Barangay: ',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15.0,
+                        color: Colors.black,
+                        fontFamily: "Montserrat-Regular",
+                      ),
+                    ),
+
+                    // SizedBox for spacing
+                    SizedBox(width: 10.0),
+
+                    // Dropdown Button
+                    DropdownButton<String>(
+                      value: selectedBarangay ?? 'NONE',
+                      onChanged: (String? newValue) {
+                        // When an item is selected, update the state
+                        setState(() {
+                          selectedBarangay = newValue!;
+                          print(selectedBarangay);
+                        });
+                      },
+                      items: <String>['NONE','BAGBAGUIN', 'BALASING', 'BUENAVISTA', 'BULAC', 'CAMANGYANAN'
+                                      ,'CATMON', 'CAYPOMBO', 'CAYSIO', 'GUYONG', 'LALAKHAN',
+                                      'MAG-ASAWANG SAPA', 'MAHABANG PARANG', 'MANGGAHAN', 'PARADA', 'POBLACION',
+                                       'PULONG BUHANGIN', 'SAN GABRIEL', 'SAN JOSE PATAG', 'SAN VICENTE', 'SANTA CLARA',
+                                        'SANTA CRUZ', 'SANTO TOMAS', 'SILANGAN', 'TUMANA']
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+
+
                     Text('Select the type of report',
                       style: TextStyle(
                         fontSize: 15.0,
@@ -818,9 +759,9 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                         fontFamily: "Montserrat-Regular",
                       ),
                     ),
-                
+
                     SizedBox(height: 10.0,),
-                
+
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -841,11 +782,11 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                         ),
                       ],
                     ),
-                
-                
+
+
                     SizedBox(height: 5.0),
-                
-                
+
+
                     /* Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -867,9 +808,9 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                       ),
                     ],
                   ), */
-                
+
                     SizedBox(height: 5.0),
-                
+
                     Form(
                       key: _formField,
                       child: Column(
@@ -877,15 +818,15 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                         children: [
                           Text('Describe your Situation',
                             style: TextStyle(
-                
+
                               fontSize: 15.0,
                               color: Colors.grey,
                               fontFamily: "Montserrat-Regular",
                             ),
                           ),
-                
+
                           SizedBox(height: 10.0),
-                
+
                           SizedBox(
                             width: double.infinity, // <-- TextField width
                             height: 150, // <-- TextField height
@@ -902,42 +843,42 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                                 contentPadding: EdgeInsets.only(top:15.0,bottom: 20.0, left:10.0, right: 10.0),
                               ),
                               validator: (value) {
-                
+
                                 if (value == null || value.isEmpty ) {
                                   return "Please Input Description";
                                 }
                                 return null;
-                
+
                               },
-                
+
                             ),
                           ),
                         ],
                       ),
                     ),
-                
+
                     SizedBox(height: 20.0),
-                
+
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Upload an Photo Evidence',
                           style: TextStyle(
-                
+
                             fontSize: 15.0,
                             color: Colors.grey,
                             fontFamily: "Montserrat-Regular",
                           ),
                         ),
-                
+
                         SizedBox(height: 10.0),
-                
+
                         GestureDetector(
                           onTap: () async{
                             // Handle the click here
                             status =  await Permission.photos.request();
                             statusCamera =  await Permission.camera.request();
-                
+
                             if (status.isGranted || statusCamera.isGranted) {
                               await _showImageSourceDialog(context);
                             } else {
@@ -977,7 +918,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    Text('Max of 1 image only',
+                                    Text('Upload File',
                                       style: TextStyle(
                                         fontSize: 10.0,
                                         color: Colors.grey,
@@ -997,9 +938,9 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                         ),
                       ],
                     ),
-                
+
                     SizedBox(height: 20.0,),
-                
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -1010,16 +951,14 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                           child: TextButton(
                               onPressed: () {
 
-                                if (isButtonDisabled) {
-                                  return null;
-                                }
-
                                 if (_formField.currentState!.validate() &&
                                     _selectedButton < 4 && _imageFile != null &&
                                     _currentPosition != null
-                                    && userInfo['name'] != null) {
-                                  Description = descriptionController.text;
+                                    && userInfo['name'] != null && selectedBarangay != 'NONE') {
 
+                                  selectedBarangay = selectedBarangay;
+                                  print(selectedBarangay);
+                                  Description = descriptionController.text;
                                   name = userInfo['name'];
                                   residentProfile = userInfo['image'];
                                   phoneNumber =
@@ -1059,11 +998,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                                     ..show();
                                 }
                               },
-                            child: Text(
-                              isButtonDisabled
-                                  ? //'Countdown: ${_formatCountdown()}'
-                              'Button Disabled'
-                                  : 'Submit Report',
+                            child: Text('Submit Report',
                               style: TextStyle(
                                 fontFamily: 'Montserrat-Regular',
                                 fontSize: 24.0,
@@ -1085,7 +1020,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                         ),
                       ],
                     ),
-                
+
                   ],
                 ),
               ),
@@ -1095,10 +1030,6 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
       );
     }
 
-}
-Future<bool> getButtonDisabled() async {
-  final prefs = await SharedPreferences.getInstance();
-  return prefs.getBool('isButtonDisabled') ?? false;
 }
 
 

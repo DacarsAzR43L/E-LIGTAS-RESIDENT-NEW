@@ -40,13 +40,13 @@ class History extends StatefulWidget {
 
 
 
-  History({required this.uid});
+
 
   final auth = FirebaseAuth.instance;
   User? user;
   String? uid = FirebaseAuth.instance.currentUser?.uid;
 
-
+  History({required this.uid});
   @override
   State<History> createState() => _HistoryState();
 }
@@ -217,18 +217,16 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
             .values
             .toList();
 
-        setState(() async {
+        setState(()  {
           historyData = data;
           historyDataIsFetching = false;
-          final prefs = await SharedPreferences.getInstance();
-          prefs.setBool('isButtonDisabled', false);// Set to false when fetching data ends
+
         });
       } else {
         print('Error: ${response.statusCode}');
         setState(() async {
           historyData = [];
-          final prefs = await SharedPreferences.getInstance();
-          prefs.setBool('isButtonDisabled', false);
+
           historyDataIsFetching = false; // Set to false when fetching data ends
         });
 
@@ -562,7 +560,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
                 SizedBox(height: 1.h,),
                 if (isPendingTab)
                   Text(
-                    'If no respond within 5 minutes, try to call in the nearest barangay! Please visit Hotlines Tab\n DO NOT SPAM REPORTS',
+                    'If no respond within 3 minutes, try to call in the nearest barangay and cancel the report! Please visit Hotlines Tab.\nDO NOT SPAM REPORTS',
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -594,7 +592,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
                           )..show();
                         },
                         child: Text(
-                          'Cancel Request',
+                          'Cancel Report',
                           style: TextStyle(
                             fontFamily: 'Montserrat-Regular',
                             fontSize: 24.0,
