@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:card_swiper/card_swiper.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,7 @@ class HistoryRequestCard {
   final phoneNumber;
   final message;
   final residentProfile;
-  final image;
+  final List<String> image;
   final locationName;
   final reportId;
 
@@ -162,7 +163,6 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
   }
 
   Future<void> fetchData() async {
-
     setState(() {
       historyDataIsFetching = true; // Set to false when fetching data ends
     });
@@ -170,7 +170,6 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
     var connectivityResult = await Connectivity().checkConnectivity();
 
     if (connectivityResult == ConnectivityResult.none) {
-
       setState(() {
         historyDataIsFetching = false; // Set to false when fetching data ends
       });
@@ -185,13 +184,15 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
         btnOkOnPress: () {},
         dismissOnTouchOutside: false,
       )..show();
+
       print('No Internet Connection');
       // Handle the case when there is no internet connection, e.g., show an error message.
       return;
     }
 
     try {
-      final String apiUrl = 'https://eligtas.site/public/storage/get_pending_history.php?uid=${widget.uid}';
+      final String apiUrl =
+          'https://eligtas.site/public/storage/get_pending_history.php?uid=${widget.uid}';
       final response = await http.get(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
@@ -210,38 +211,48 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
             phoneNumber: item['phoneNumber'],
             message: item['message'],
             residentProfile: item['residentProfile'],
-            image: item['imageEvidence'],
+            image: List<String>.from(item['imageEvidence']), // Convert to List<String>
             reportId: item['report_id'],
           ),
         ))
             .values
             .toList();
 
-        setState(()  {
+        setState(() {
           historyData = data;
           historyDataIsFetching = false;
-
         });
       } else {
         print('Error: ${response.statusCode}');
-        setState(() async {
+        setState(() {
           historyData = [];
-
           historyDataIsFetching = false; // Set to false when fetching data ends
         });
-
       }
     } catch (error) {
       print('Error: $error');
       setState(() {
-        historyData=[];
+        historyData = [];
         historyDataIsFetching = false; // Set to false when fetching data ends
       });
     }
   }
 
-  Future<void> fetchAcceptedData() async {
 
+  List<String> _getImagePaths(dynamic imageEvidence) {
+    if (imageEvidence is String) {
+      // If it's a comma-separated string, split it
+      return imageEvidence.split(',');
+    } else if (imageEvidence is List) {
+      // If it's already a list, use it
+      return List<String>.from(imageEvidence);
+    } else {
+      // Handle other cases accordingly
+      return [];
+    }
+  }
+
+  Future<void> fetchAcceptedData() async {
     setState(() {
       historyDataIsFetching = true; // Set to false when fetching data ends
     });
@@ -252,6 +263,9 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
       // Handle the case when there is no internet connection, e.g., show an error message.
       // You can use AwesomeDialog or any other method to show an error message.
       print('No Internet Connection');
+      setState(() {
+        historyDataIsFetching = false; // Set to false when fetching data ends
+      });
       return;
     }
 
@@ -275,12 +289,15 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
             phoneNumber: item['phoneNumber'],
             message: item['message'],
             residentProfile: item['residentProfile'],
-            image: item['imageEvidence'],
+            image: _getImagePaths(item['imageEvidence']),
             reportId: item['report_id'],
           ),
         ))
             .values
             .toList();
+
+        // Debug print to check if data is received
+        print('Accepted Data Fetched: $data');
 
         // Assuming historyDataAccepted is a List<HistoryRequestCard> variable
         setState(() {
@@ -290,19 +307,19 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
       } else {
         print('Error: ${response.statusCode}');
         setState(() {
-          historyDataAccepted=[];
+          historyDataAccepted = [];
           historyDataIsFetching = false; // Set to false when fetching data ends
         });
-
       }
     } catch (error) {
-      print('Error: $error');
+      print('Error Here: $error');
       setState(() {
-        historyDataAccepted=[];
+        historyDataAccepted = [];
         historyDataIsFetching = false; // Set to false when fetching data ends
       });
     }
   }
+
 
 
   Future<void> fetchArchivedData() async {
@@ -331,7 +348,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
             phoneNumber: item['phoneNumber'],
             message: item['message'],
             residentProfile: item['residentProfile'],
-            image: item['imageEvidence'],
+            image: List<String>.from(item['imageEvidence']),
             reportId: item['report_id'],
           ),
         ))
@@ -399,11 +416,13 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
   Widget buildArchivedTab() {
     return RefreshIndicator(
       onRefresh: fetchArchivedData,
-      child: historyDataArchive.isEmpty
+      child: historyDataIsFetching
           ? Center(
-        child: historyDataIsFetching
-            ? CircularProgressIndicator()
-            : Text('No archived data available'),
+        child: CircularProgressIndicator(),
+      )
+          : historyDataArchive.isEmpty
+          ? Center(
+        child: Text('No archived data available'),
       )
           : ListView.builder(
         itemCount: historyDataArchive.length,
@@ -431,11 +450,13 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
   Widget buildPendingTab() {
     return RefreshIndicator(
       onRefresh: fetchData,
-      child: historyData.isEmpty
+      child: historyDataIsFetching
           ? Center(
-        child: historyDataIsFetching
-            ? CircularProgressIndicator()
-            : Text('No data available'),
+        child: CircularProgressIndicator(),
+      )
+          : historyData.isEmpty
+          ? Center(
+        child: Text('No pending data available'),
       )
           : ListView.builder(
         itemCount: historyData.length,
@@ -460,16 +481,16 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
     );
   }
 
-
-
   Widget buildAcceptedTab() {
     return RefreshIndicator(
-      onRefresh: fetchAcceptedData, // Add a method to fetch data for the "Accepted" tab
-      child: historyDataAccepted.isEmpty
+      onRefresh: fetchAcceptedData,
+      child: historyDataIsFetching
           ? Center(
-          child: historyDataIsFetching
-              ? CircularProgressIndicator()
-              : Text('No data available'),
+        child: CircularProgressIndicator(),
+      )
+          : historyDataAccepted.isEmpty
+          ? Center(
+        child: Text('No accepted data available'),
       )
           : ListView.builder(
         itemCount: historyDataAccepted.length,
@@ -479,7 +500,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
             index,
             card.emergencyType,
             card.date,
-            showButtons: false, // Assuming you don't want buttons in the "Accepted" tab
+            showButtons: false,
             name: card.name,
             residentProfile: card.residentProfile,
             locationName: card.locationName,
@@ -495,6 +516,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
   }
 
 
+
   Widget buildCard(
       int index,
       String emergencyType,
@@ -506,7 +528,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
         required String locationLink,
         required String phoneNumber,
         required String message,
-        required dynamic image,
+        required List<String>? image,
         required report_id,
       }) {
     bool isPendingTab = showButtons; // Assuming showButtons indicates the "Pending" tab
@@ -662,14 +684,14 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
                           SizedBox(height: 5.0),
                           GestureDetector(
                             onTap: () {
-                              launch('tel:$phoneNumber');
+                              launch('tel:+$phoneNumber');
                             },
                             child: Row(
                               children: [
                                 Text('Phone Number: '),
                                 SizedBox(width: 5.0),
                                 Text(
-                                  phoneNumber,
+                                  '+${phoneNumber}',
                                   style: TextStyle(
                                     color: Colors.blue,
                                     decoration: TextDecoration.underline,
@@ -687,13 +709,8 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
                             ],
                           ),
                           SizedBox(height: 10.0),
-                          Container(
-                            alignment: Alignment.center,
-                            child: Image.memory(
-                              base64Decode(image),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
+
+                          buildSwiper(image),
                         ],
                       ),
                     ),
@@ -703,6 +720,33 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
             ),
           ),
         ),
+      ),
+    );
+  }
+  Widget buildSwiper(List<String>? images) {
+    if (images == null || images.isEmpty) {
+      // Return a placeholder or empty container if there are no images
+      return Container();
+    }
+
+    return Container(
+      width: double.infinity,
+      height: 400,
+      child: Swiper(
+        loop: false,
+        itemBuilder: (BuildContext context, int index) {
+          return Container(
+            alignment: Alignment.center,
+            child: Image.memory(
+              base64Decode(images[index]),
+              fit: BoxFit.cover,
+            ),
+          );
+        },
+        itemCount: images.length,
+        pagination: SwiperPagination(), // Add pagination dots if needed
+        control: SwiperControl(), // Add control arrows if needed
+        // Other Swiper configurations
       ),
     );
   }

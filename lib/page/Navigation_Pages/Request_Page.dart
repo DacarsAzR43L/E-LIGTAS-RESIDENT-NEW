@@ -79,6 +79,11 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
   late String? _imageName =null;
   late String? _imageData =null;
 
+
+  List<io.File> _imageFiles = [];
+  List<String> _imageNames = [];
+  List<String> _imageDataList = [];
+
   bool isButtonDisabled = false;
   int countdownDuration = 30; // 30 minutes in seconds
   late Timer countdownTimer;
@@ -224,14 +229,14 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
               child: Text('Camera'),
               onPressed: () {
                 Navigator.pop(context);
-                _pickImage(ImageSource.camera);
+                _pickImages1(ImageSource.camera);
               },
             ),
             CupertinoDialogAction(
               child: Text('Gallery'),
               onPressed: () {
                 Navigator.pop(context);
-                _pickImage(ImageSource.gallery);
+                _pickImages(ImageSource.gallery);
               },
             ),
           ],
@@ -241,14 +246,12 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
           actions: <Widget>[
             TextButton(
               child: Text('Camera'),
-              onPressed: ()  {
-
-                //statCamera ==true ||
-                if( statusCamera.isGranted) {
+              onPressed: () {
+                // statCamera ==true ||
+                if (statusCamera.isGranted) {
                   Navigator.pop(context);
-                  _pickImage(ImageSource.camera);
-                }
-                else  {
+                  _pickImages1(ImageSource.camera);
+                } else {
                   Navigator.pop(context);
                   showDialog(
                     context: context,
@@ -262,13 +265,11 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
             TextButton(
               child: Text('Gallery'),
               onPressed: () {
-
                 // statGallery == true ||
-                if( status.isGranted ) {
+                if (status.isGranted) {
                   Navigator.pop(context);
-                  _pickImage(ImageSource.gallery);
-                }
-                else {
+                  _pickImages(ImageSource.gallery);
+                } else {
                   Navigator.pop(context);
                   showDialog(
                     context: context,
@@ -285,11 +286,64 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
     );
   }
 
-  Future<void> _pickImage(ImageSource gallery) async {
+  Widget _buildImageWithCloseButton(io.File imageFile, String base64Image, int index) {
+    return Stack(
+      alignment: Alignment.topRight,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Image.file(
+            imageFile,
+            width: 50.0,
+            height: 50.0,
+            fit: BoxFit.cover,
+          ),
+        ),
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              _imageFiles.removeAt(index);
+              _imageDataList.removeAt(index);
+            });
+          },
+          child: CircleAvatar(
+            radius: 12.0,
+            backgroundColor: Colors.red,
+            child: Icon(
+              Icons.close,
+              color: Colors.white,
+              size: 16.0,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _pickImages1(ImageSource gallery) async {
     try {
       final XFile? image = await ImagePicker().pickImage(source: gallery);
 
       if (image != null) {
+
+        // Show CircularProgressIndicator while picking images
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 10),
+                  Text("Loading images..."),
+                ],
+              ),
+            );
+          },
+          barrierDismissible: false,
+        );
+
         List<int> imageBytes = await io.File(image.path).readAsBytes();
 
         // Convert List<int> to Uint8List
@@ -326,21 +380,109 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
             "Image File Size After Compression: ${io.File(image.path).lengthSync()} bytes");
 
         setState(() {
-          _imageFile = io.File(image.path);
-          _imageName = image.path.split('/').last;
-          _imageData = base64Image;
+          _imageFiles.add(io.File(image.path));
+          _imageNames.add(image.path.split('/').last);
+          _imageDataList.add(base64Image);
 
-          print("Base64 Image Data: $_imageData");
-          print("Image Name: $_imageName");
-          print("Image File: $_imageFile");
+          print("Base64 Image Data List: $_imageDataList");
+          print("Image Names List: $_imageNames");
+          print("Image Files List: $_imageFiles");
         });
       }
+      // Dismiss the CircularProgressIndicator dialog
+      Navigator.pop(context);
     } catch (e) {
       print("Error during image picking: $e");
     }
   }
 
-  Future<void> uploadImage() async {
+  Future<void> _pickImages(ImageSource gallery) async {
+    try {
+
+      final List<XFile>? newImages = await ImagePicker().pickMultiImage(
+        maxWidth: 720,
+        maxHeight: 720,
+        imageQuality: 50,
+      );
+
+      if (newImages != null && newImages.isNotEmpty) {
+
+        // Show CircularProgressIndicator while picking images
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 10),
+                  Text("Loading images..."),
+                ],
+              ),
+            );
+          },
+          barrierDismissible: false,
+        );
+
+        List<String> base64Images = [];
+
+        for (XFile image in newImages) {
+          List<int> imageBytes = await io.File(image.path).readAsBytes();
+
+          // Convert List<int> to Uint8List
+          Uint8List uint8List = Uint8List.fromList(imageBytes);
+
+          // Print original image size
+          print("Original Size: ${uint8List.length} bytes");
+
+          // Compress image using flutter_image_compress
+          List<int> compressedBytes = await FlutterImageCompress.compressWithList(
+            uint8List,
+            minHeight: 720,
+            minWidth: 720,
+            quality: 50,
+            format: CompressFormat.webp,
+          );
+
+          // Print compressed image size
+          print("Compressed Size: ${compressedBytes.length} bytes");
+
+          // Save compressed bytes to the image file
+          await io.File(image.path).writeAsBytes(compressedBytes);
+
+          // Convert compressed bytes to Uint8List
+          Uint8List compressedUint8List = Uint8List.fromList(compressedBytes);
+
+          // Encode Uint8List to base64
+          String base64Image =
+              'data:image/${image.path.split('.').last};base64,' +
+                  base64Encode(compressedUint8List);
+
+          // Print image file size after compression
+          print("Image File Size After Compression: ${io.File(image.path).lengthSync()} bytes");
+
+          base64Images.add(base64Image);
+        }
+
+        setState(() {
+          // Add new images to the existing list
+          _imageFiles.addAll(newImages.map((XFile file) => io.File(file.path)));
+          _imageDataList.addAll(base64Images);
+
+          print("Updated Base64 Image Data List: $_imageDataList");
+          print("Updated Image Files List: $_imageFiles");
+        });
+      }
+
+      // Dismiss the CircularProgressIndicator dialog
+      Navigator.pop(context);
+    } catch (e) {
+      print("Error during image picking: $e");
+    }
+  }
+
+  Future<void> uploadImage(List<io.File> imageFiles) async {
     // Check for internet connectivity
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) {
@@ -363,19 +505,25 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
 
     try {
       FormData formData = FormData.fromMap({
-        'emergency_type': emergencyType,
         'uid': uid,
+        'emergency_type': emergencyType,
         'resident_name': name,
         'locationName': _currentAddress,
         'locationLink': locationLink,
         'phoneNumber': finalNumber,
-        'BarangayName': selectedBarangay,
+        'SectorName': selectedBarangay,
         'message': Description,
-        'imageEvidence': await MultipartFile.fromFile(_imageFile!.path, filename: 'image.webp'),
-        'residentProfile': residentProfile,
         'dateTime': DateTime.now().toLocal().toString(),
         'status': statusReport,
+        'residentProfile': residentProfile,
       });
+
+      for (int i = 0; i < imageFiles.length; i++) {
+        formData.files.add(MapEntry(
+          'imageEvidence[]',
+          await MultipartFile.fromFile(imageFiles[i].path, filename: 'image_$i.webp'),
+        ));
+      }
 
       Dio dio = Dio();
       Response response = await dio.post(
@@ -383,13 +531,12 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
         data: formData,
       );
 
-
-
       if (response.statusCode == 200) {
         var responseBody = jsonEncode(response.data);
         var res = jsonDecode(responseBody);
 
         print('Response from server: $res');
+        print(imageFiles);
 
         if (res['success'] == true) {
           Navigator.of(context).pop();
@@ -412,14 +559,13 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
             },
             dismissOnTouchOutside: false,
           )..show();
-          print('Image uploaded successfully!');
+          print('Images uploaded successfully!');
 
           setState(() {
             descriptionController.clear();
             _selectedButton = 4;
-            _imageFile = null;
+            _imageFiles = [];
           });
-
         }
       }
     } catch (error) {
@@ -445,6 +591,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
       );
     }
   }
+
 
 
   Widget _buildButton(int buttonIndex, String label, IconData icon, Color color)
@@ -549,9 +696,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
   }
 
 
-
-
-
+  
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -714,7 +859,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text('Select Barangay: ',
+                    Text('Send to (Brgy/Sector):',
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 15.0,
@@ -736,7 +881,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                           print(selectedBarangay);
                         });
                       },
-                      items: <String>['NONE','BAGBAGUIN', 'BALASING', 'BUENAVISTA', 'BULAC', 'CAMANGYANAN'
+                      items: <String>['NONE','BFP', 'PNP','MDRRMO', 'BAGBAGUIN', 'BALASING', 'BUENAVISTA', 'BULAC', 'CAMANGYANAN'
                                       ,'CATMON', 'CAYPOMBO', 'CAYSIO', 'GUYONG', 'LALAKHAN',
                                       'MAG-ASAWANG SAPA', 'MAHABANG PARANG', 'MANGGAHAN', 'PARADA', 'POBLACION',
                                        'PULONG BUHANGIN', 'SAN GABRIEL', 'SAN JOSE PATAG', 'SAN VICENTE', 'SANTA CLARA',
@@ -873,66 +1018,95 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
 
                         SizedBox(height: 10.0),
 
-                        GestureDetector(
-                          onTap: () async{
-                            // Handle the click here
-                            status =  await Permission.photos.request();
-                            statusCamera =  await Permission.camera.request();
-
-                            if (status.isGranted || statusCamera.isGranted) {
-                              await _showImageSourceDialog(context);
-                            } else {
-                              AwesomeDialog(
-                                context: context,
-                                dialogType: DialogType.warning,
-                                animType: AnimType.rightSlide,
-                                btnOkColor: Color.fromRGBO(51, 71, 246, 1),
-                                title: 'Error',
-                                desc: 'Please Allow Access to the Media or Camera ',
-                                btnOkOnPress: () {},
-                                dismissOnTouchOutside: false,
-                              )..show();
-                            }
-                          },
-                          child: DottedBorder(
-                            color: Colors.grey,
-                            strokeWidth: 2,
-                            dashPattern: [10,5],
-                            child: Container(
-                              color: Colors.grey[200],
-                              width: double.infinity,
-                              height: 190,
-                              child:_imageFile == null ? Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    CircleAvatar(
-                                      backgroundImage: AssetImage('Assets/appIcon.png'),
-                                      radius: 50.0,
-                                    ),
-                                    Text(
-                                      'Upload an Image',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
+                        DottedBorder(
+                          color: Colors.grey,
+                          strokeWidth: 2,
+                          dashPattern: [10, 5],
+                          child: Container(
+                            color: Colors.grey[200],
+                            width: double.infinity,
+                            height: 190,
+                            child: _imageFiles.isNotEmpty
+                                ? Center(
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                child: Container(
+                                  padding: EdgeInsets.all(10.0),
+                                  child: Wrap(
+                                    spacing: 10.0,
+                                    runSpacing: 10.0,
+                                    children: List.generate(
+                                      _imageFiles.length,
+                                          (index) => _buildImageWithCloseButton(
+                                        _imageFiles[index],
+                                        _imageDataList[index],
+                                        index,
                                       ),
                                     ),
-                                    Text('Upload File',
-                                      style: TextStyle(
-                                        fontSize: 10.0,
-                                        color: Colors.grey,
-                                        fontFamily: "Montserrat-Regular",
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ) : Image.file(
-                                _imageFile!,
-                                width: 170,
-                                height: 170,
-                                fit: BoxFit.fill,
                               ),
+                            )
+                                : Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  CircleAvatar(
+                                    backgroundImage: AssetImage('Assets/appIcon.png'),
+                                    radius: 50.0,
+                                  ),
+                                  Text(
+                                    'Upload Evidence Photos',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10.0),
+                        Center(
+                          child: TextButton(
+                            onPressed: () async {
+                              status =  await Permission.photos.request();
+                              statusCamera =  await Permission.camera.request();
+
+                              if (status.isGranted || statusCamera.isGranted) {
+                                await _showImageSourceDialog(context);
+                              } else {
+                                AwesomeDialog(
+                                  context: context,
+                                  dialogType: DialogType.warning,
+                                  animType: AnimType.rightSlide,
+                                  btnOkColor: Color.fromRGBO(51, 71, 246, 1),
+                                  title: 'Error',
+                                  desc: 'Please Allow Access to the Media or Camera ',
+                                  btnOkOnPress: () {},
+                                  dismissOnTouchOutside: false,
+                                )..show();
+                              }
+                            },
+                            child: Text(
+                              'Select Image',
+                              style: TextStyle(
+                                fontFamily: 'Montserrat-Regular',
+                                fontSize: 24.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            style: ButtonStyle(
+                              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  side: BorderSide(color: Color.fromRGBO(51, 71, 246, 1)),
+                                ),
+                              ),
+                              backgroundColor: MaterialStateProperty.all<Color>(Color.fromRGBO(51, 71, 246, 1)),
                             ),
                           ),
                         ),
@@ -952,7 +1126,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                               onPressed: () {
 
                                 if (_formField.currentState!.validate() &&
-                                    _selectedButton < 4 && _imageFile != null &&
+                                    _selectedButton < 4 && _imageFiles != null && _imageFiles.isNotEmpty &&
                                     _currentPosition != null
                                     && userInfo['name'] != null && selectedBarangay != 'NONE') {
 
@@ -978,7 +1152,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                                     desc: 'Are you sure that the information is accurate?',
                                     btnCancelOnPress: () {},
                                     btnOkOnPress: () {
-                                      uploadImage();
+                                      uploadImage(_imageFiles);
                                     },
                                     dismissOnTouchOutside: false,
                                   )

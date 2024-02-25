@@ -68,7 +68,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         await _resetPassword();
                       },
                       style: ElevatedButton.styleFrom(
-                        primary: Color.fromRGBO(51, 71, 246, 1),
+                        backgroundColor: Color.fromRGBO(51, 71, 246, 1),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0), // Adjust the radius as needed
                         ),
