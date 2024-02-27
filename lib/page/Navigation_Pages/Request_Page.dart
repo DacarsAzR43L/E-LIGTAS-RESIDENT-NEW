@@ -1094,7 +1094,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                               'Select Image',
                               style: TextStyle(
                                 fontFamily: 'Montserrat-Regular',
-                                fontSize: 24.0,
+                                fontSize: 15.0,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
