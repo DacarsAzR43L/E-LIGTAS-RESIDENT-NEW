@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyABuq8k4JTBKyA5QUwjOIMcp8qHES7Jdh0</string>
+	<key>GCM_SENDER_ID</key>
+	<string>125129385603</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.eligtasResident</string>
+	<key>PROJECT_ID</key>
+	<string>e-ligtas-ccaed</string>
+	<key>STORAGE_BUCKET</key>
+	<string>e-ligtas-ccaed.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:125129385603:ios:00fe3fd2ace3324ffd1db6</string>
+</dict>
+</plist>

@@ -1,0 +1,27 @@
+flutter_native_splash:
+  color: "#3C6CD8"
+  image: "Assets/e-ligtas.png"
+  #background-image: "Assets/splash.png"
+  color_dark: "#081B29"
+  background_image_dark: "Assets/e-ligtas-dark.png"
+  image_dark: "Assets/e-ligtas-dark.png"
+  android_gravity: center
+
+
+  android_12:
+    color: "#3C6CD8"
+    image: "Assets/e-ligtas.png"
+    #background-image: "Assets/splash.png"
+    color_dark: "#081B29"
+    background_image_dark: "Assets/e-ligtas-dark.png"
+    image_dark: "Assets/e-ligtas-dark.png"
+    android_gravity: center
+
+    ios_content_mode: center
+    color_ios: "#3C6CD8"
+    image_ios: "Assets/e-ligtas-dark.png"
+
+
+  android: true
+  ios: true
+  web: false
