@@ -324,8 +324,8 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
     try {
       final XFile? image = await ImagePicker().pickImage(source: gallery);
 
-      if (image != null) {
-
+      // Always true condition to show the CircularProgressIndicator
+      if (true) {
         // Show CircularProgressIndicator while picking images
         showDialog(
           context: context,
@@ -344,87 +344,90 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
           barrierDismissible: false,
         );
 
-        List<int> imageBytes = await io.File(image.path).readAsBytes();
+        if (image != null) {
+          List<int> imageBytes = await io.File(image.path).readAsBytes();
 
-        // Convert List<int> to Uint8List
-        Uint8List uint8List = Uint8List.fromList(imageBytes);
+          // Convert List<int> to Uint8List
+          Uint8List uint8List = Uint8List.fromList(imageBytes);
 
-        // Print original image size
-        print("Original Size: ${uint8List.length} bytes");
+          // Print original image size
+          print("Original Size: ${uint8List.length} bytes");
 
-        // Compress image using flutter_image_compress
-        List<int> compressedBytes = await FlutterImageCompress.compressWithList(
-          uint8List,
-          minHeight: 720,
-          minWidth: 720,
-          quality: 50,
-          format: CompressFormat.webp,
-        );
+          // Compress image using flutter_image_compress
+          List<int> compressedBytes = await FlutterImageCompress.compressWithList(
+            uint8List,
+            minHeight: 720,
+            minWidth: 720,
+            quality: 50,
+            format: CompressFormat.webp,
+          );
 
-        // Print compressed image size
-        print("Compressed Size: ${compressedBytes.length} bytes");
+          // Print compressed image size
+          print("Compressed Size: ${compressedBytes.length} bytes");
 
-        // Save compressed bytes to the image file
-        await io.File(image.path).writeAsBytes(compressedBytes);
+          // Save compressed bytes to the image file
+          await io.File(image.path).writeAsBytes(compressedBytes);
 
-        // Convert compressed bytes to Uint8List
-        Uint8List compressedUint8List = Uint8List.fromList(compressedBytes);
+          // Convert compressed bytes to Uint8List
+          Uint8List compressedUint8List = Uint8List.fromList(compressedBytes);
 
-        // Encode Uint8List to base64
-        String base64Image =
-            'data:image/${image.path.split('.').last};base64,' +
-                base64Encode(compressedUint8List);
+          // Encode Uint8List to base64
+          String base64Image =
+              'data:image/${image.path.split('.').last};base64,' +
+                  base64Encode(compressedUint8List);
 
-        // Print image file size after compression
-        print(
-            "Image File Size After Compression: ${io.File(image.path).lengthSync()} bytes");
+          // Print image file size after compression
+          print(
+              "Image File Size After Compression: ${io.File(image.path).lengthSync()} bytes");
 
-        setState(() {
-          _imageFiles.add(io.File(image.path));
-          _imageNames.add(image.path.split('/').last);
-          _imageDataList.add(base64Image);
+          setState(() {
+            _imageFiles.add(io.File(image.path));
+            _imageNames.add(image.path.split('/').last);
+            _imageDataList.add(base64Image);
 
-          print("Base64 Image Data List: $_imageDataList");
-          print("Image Names List: $_imageNames");
-          print("Image Files List: $_imageFiles");
-        });
+            print("Base64 Image Data List: $_imageDataList");
+            print("Image Names List: $_imageNames");
+            print("Image Files List: $_imageFiles");
+          });
+        }
+
+        // Dismiss the CircularProgressIndicator dialog
+        Navigator.pop(context);
       }
-      // Dismiss the CircularProgressIndicator dialog
-      Navigator.pop(context);
     } catch (e) {
       print("Error during image picking: $e");
     }
   }
 
+
+
   Future<void> _pickImages(ImageSource gallery) async {
     try {
-
       final List<XFile>? newImages = await ImagePicker().pickMultiImage(
         maxWidth: 720,
         maxHeight: 720,
         imageQuality: 50,
       );
 
+      // Show CircularProgressIndicator while picking images
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 10),
+                Text("Loading images..."),
+              ],
+            ),
+          );
+        },
+        barrierDismissible: false,
+      );
+
       if (newImages != null && newImages.isNotEmpty) {
-
-        // Show CircularProgressIndicator while picking images
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 10),
-                  Text("Loading images..."),
-                ],
-              ),
-            );
-          },
-          barrierDismissible: false,
-        );
-
         List<String> base64Images = [];
 
         for (XFile image in newImages) {
@@ -460,7 +463,8 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
                   base64Encode(compressedUint8List);
 
           // Print image file size after compression
-          print("Image File Size After Compression: ${io.File(image.path).lengthSync()} bytes");
+          print(
+              "Image File Size After Compression: ${io.File(image.path).lengthSync()} bytes");
 
           base64Images.add(base64Image);
         }
@@ -590,6 +594,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
         },
       );
     }
+
   }
 
 
