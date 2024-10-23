@@ -29,7 +29,7 @@ class _DetailsPageState extends State<DetailsPage> {
   }
 
   Future<List<Map<String, dynamic>>> fetchGuidelinesData(String guidelinesId, String section) async {
-    final apiUrl = 'https://eligtas.site/public/storage/get_${section}_guidelines.php?guidelines_id=$guidelinesId';
+    final apiUrl = 'http://192.168.100.66/e-ligtas-resident/get_${section}_guidelines.php?guidelines_id=$guidelinesId';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));

@@ -130,7 +130,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
       }
 
       // Make an API call to remove data from the database based on reportId
-      final String apiUrl = 'https://eligtas.site/public/storage/delete_pending_history.php?report_id=$reportId';
+      final String apiUrl = 'http://192.168.100.66/e-ligtas-resident/delete_pending_history.php?report_id=${reportId}';
       final response = await http.get(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
@@ -192,7 +192,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
 
     try {
       final String apiUrl =
-          'https://eligtas.site/public/storage/get_pending_history.php?uid=${widget.uid}';
+          'http://192.168.100.66/e-ligtas-resident/get_pending_history.php?uid=${widget.uid}';
       final response = await http.get(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
@@ -270,7 +270,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
     }
 
     try {
-      final String apiUrl = 'https://eligtas.site/public/storage/get_accepted_history.php?uid=${widget.uid}';
+      final String apiUrl = 'http://192.168.100.66/e-ligtas-resident/get_accepted_history.php?uid=${widget.uid}';
       final response = await http.get(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
@@ -329,7 +329,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
     // Example:
 
     try {
-      final String apiUrl = 'https://eligtas.site/public/storage/get_archived_history.php?uid=${widget.uid}';
+      final String apiUrl = 'http://192.168.100.66/e-ligtas-resident/get_archived_history.php?uid=${widget.uid}';
       final response = await http.get(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
@@ -607,7 +607,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
 
                               final prefs = await SharedPreferences.getInstance();
                               prefs.setBool('isButtonDisabled', false);
-
+                              print("Report ID: ${report_id}");
                               removeFromList(report_id);
                             },
                             dismissOnTouchOutside: false,

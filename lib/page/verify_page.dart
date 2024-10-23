@@ -111,7 +111,7 @@ class _VerifyScreenState extends State<VerifyScreen> {
   }
 
   Future signUp(arg1) async {
-    var url = Uri.parse('https://eligtas.site/public/storage/signup.php');
+    var url = Uri.parse('http://192.168.100.66/e-ligtas-resident/signup.php');
 
     var response = await http.post(url, body: {
       "uid": uid,

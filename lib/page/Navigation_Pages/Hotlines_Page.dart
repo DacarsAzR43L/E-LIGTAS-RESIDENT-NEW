@@ -29,7 +29,7 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
         await db.execute('''
           CREATE TABLE hotlines (
             id INTEGER PRIMARY KEY,
-            userfrom TEXT,
+            sector_from TEXT,
             hotlines_number TEXT
           )
         ''');
@@ -49,7 +49,7 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
     final List<Map<String, dynamic>> maps = await _database.query('hotlines');
     return List.generate(maps.length, (i) {
       return {
-        'userfrom': maps[i]['userfrom'],
+        'sector_from': maps[i]['sector_from'],
         'hotlines_number': maps[i]['hotlines_number'],
       };
     });
@@ -104,7 +104,7 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
 
   Future<List<dynamic>> fetchData() async {
     final response = await http.get(
-        Uri.parse('https://eligtas.site/public/storage/retrieve_hotlines.php'));
+        Uri.parse('http://192.168.100.66/e-ligtas-resident/retrieve_hotlines.php'));
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -118,7 +118,7 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
     setState(() {
       displayedData = originalData
           .where((item) =>
-      item['userfrom']
+      item['sector_from']
           .toLowerCase()
           .contains(query.toLowerCase()) ||
           item['hotlines_number'].contains(query))
@@ -214,7 +214,7 @@ class _Hotlines_PageState extends State<Hotlines_Page> {
                           ),
                           child: ListTile(
                             title: Text(
-                              '${displayedData[index]['userfrom']}',
+                              '${displayedData[index]['sector_from']}',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14.0.sp,

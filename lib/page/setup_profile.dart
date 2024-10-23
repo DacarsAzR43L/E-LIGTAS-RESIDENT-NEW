@@ -180,7 +180,9 @@ late PermissionStatus statusCamera;
     }
   }
 
-  Future<void> uploadImage() async {
+Future<void> uploadImage() async {
+  try {
+    // Show loading dialog
     showDialog(
       context: context,
       builder: (context) {
@@ -191,35 +193,66 @@ late PermissionStatus statusCamera;
       },
     );
 
-      FormData formData = FormData.fromMap({
-        'uid': uid,
-        'name': _nameController.text,
-        'address': _addressController.text,
-        'phonenumber': finalNumber,
-        'image': await MultipartFile.fromFile(_imageFile!.path, filename: 'image.webp'),
-      });
+    // Prepare form data for the request
+    FormData formData = FormData.fromMap({
+      'uid': uid,
+      'name': _nameController.text,
+      'address': _addressController.text,
+      'phonenumber': finalNumber,
+      'image': await MultipartFile.fromFile(_imageFile!.path, filename: 'image.webp'),
+    });
 
-      Dio dio = Dio();
-      var response = await dio.post('https://eligtas.site/public/storage/upload_profile.php', data: formData);
+    // Make the POST request
+    Dio dio = Dio();
+    var response = await dio.post('http://192.168.100.66/e-ligtas-resident/upload_profile.php', data: formData);
 
-      var res = response.data;
+    var res = response.data;
 
-      if (res['success'] == true) {
-        Navigator.of(context).pop();
+    if (res['success'] == true) {
+      Navigator.of(context).pop();
 
-        Navigator.pushAndRemoveUntil(context,
-            MaterialPageRoute(builder: (context) => HomeScreen(uid: uid,)), (
-                route) => false);
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen(uid: uid)),
+        (route) => false,
+      );
 
-        showDialog(
-          context: context,
-          builder: (context) {
-            return SetUpSuccessDialog();
-          },
-        );
-        print('Image uploaded successfully!');
-      }
-  }
+      showDialog(
+        context: context,
+        builder: (context) {
+          return SetUpSuccessDialog();
+        },
+      );
+      print('Image uploaded successfully!');
+    } else {
+      Navigator.of(context).pop();
+    print('Error: ${_imageFile!.path}');
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.warning,
+      animType: AnimType.rightSlide,
+      btnOkColor: Color.fromRGBO(51, 71, 246, 1),
+      title: "Error",
+      desc: "An error occurred, Please try again",
+      btnOkOnPress: () {},
+      dismissOnTouchOutside: false,
+    )..show();
+    }
+  } catch (error) {
+    Navigator.of(context).pop();
+    print('Error: ${_imageFile!.path}');
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.warning,
+      animType: AnimType.rightSlide,
+      btnOkColor: Color.fromRGBO(51, 71, 246, 1),
+      title: "Error",
+      desc: "An error occurred, Please try again",
+      btnOkOnPress: () {},
+      dismissOnTouchOutside: false,
+    )..show();
+  };
+}
 
   Future<void> checkPhoneNumber(String phone_number) async {
     showDialog(
@@ -242,7 +275,7 @@ late PermissionStatus statusCamera;
     }
 
     final response = await http.get(Uri.parse(
-        'https://eligtas.site/public/storage/check_number.php?phone_number=$phone_number'));
+        'http://192.168.100.66/e-ligtas-resident/check_number.php?phone_number=$phone_number'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);

@@ -45,7 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> fetchData() async {
     try {
       // Replace "http://your-server/retrieve_image.php" with your actual server URL
-      var response = await http.get(Uri.parse("https://eligtas.site/public/storage/get_profile_info.php?uid=${widget.uid}"));
+      var response = await http.get(Uri.parse("http://192.168.100.66/e-ligtas-resident/get_profile_info.php?uid=${widget.uid}"));
 
       if (response.statusCode == 200) {
         setState(() {

@@ -104,7 +104,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
   Future<void> fetchData() async {
     try {
       var response = await http.get(
-          Uri.parse("https://eligtas.site/public/storage/get_report_info.php?uid=${widget.uid}"));
+          Uri.parse("http://192.168.100.66/e-ligtas-resident/get_report_info.php?uid=${widget.uid}"));
 
       if (response.statusCode == 200) {
         setState(() {
@@ -531,7 +531,7 @@ class _Request_PageState extends State<Request_Page> with AutomaticKeepAliveClie
 
       Dio dio = Dio();
       Response response = await dio.post(
-        'https://eligtas.site/public/storage/send_reports.php',
+        'http://192.168.100.66/e-ligtas-resident/send_reports.php',
         data: formData,
       );
 
