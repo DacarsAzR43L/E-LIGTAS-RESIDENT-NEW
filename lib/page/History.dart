@@ -95,7 +95,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
   }
 
 
-  void removeFromList(int reportId) {
+  void removeFromList(String reportId) {
     // Find the index of the item with the given reportId
     int index = historyData.indexWhere((element) => element.reportId == reportId);
 
@@ -110,7 +110,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
     }
   }
 
-  Future<void> removeDataFromDatabase(int reportId) async {
+  Future<void> removeDataFromDatabase(String reportId) async {
     try {
       var connectivityResult = await Connectivity().checkConnectivity();
 
